@@ -42,20 +42,16 @@ class AuthenticatedSessionController extends Controller
     
         return new Response([
             'token' => $user->createToken($request->email)->plainTextToken,
-        ], 200);
+        ]);
     }
 
     /**
      * Destroy an authenticated session.
      */
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(Request $request): Response
     {
-        Auth::guard('web')->logout();
+        $request->user()->tokens()->delete();
 
-        $request->session()->invalidate();
-
-        $request->session()->regenerateToken();
-
-        return redirect('/');
+        return new Response('Logged out successfully');
     }
 }
