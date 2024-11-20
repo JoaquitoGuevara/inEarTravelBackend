@@ -42,6 +42,7 @@ class AuthenticatedSessionController extends Controller
     
         return new Response([
             'token' => $user->createToken($request->email)->plainTextToken,
+            'user' => $user->toArray(),
         ]);
     }
 
