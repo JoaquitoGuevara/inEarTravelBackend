@@ -36,18 +36,22 @@ class RegisteredUserController extends Controller
     
         $googleData = $response->json();
     
-        $user = User::firstOrCreate(
-            ['email' => $googleData['email']],
-            [
+        $user = User::where('email', $googleData['email'])->first();
+
+        if (!$user) {
+            $user = User::create([
                 'name' => $googleData['name'],
+                'email' => $googleData['email'],
                 'google_id' => $googleData['sub'], 
                 'profile_picture' => $googleData['picture'] ?? null,
                 'password' => Hash::make(uniqid()),
-            ]
-        );
+            ]);
     
-        if ($user->wasRecentlyCreated) {
             event(new Registered($user));
+        } else {
+            if (is_null($user->google_id)) {
+                $user->update(['google_id' => $googleData['sub']]);
+            }
         }
     
         return new Response([
