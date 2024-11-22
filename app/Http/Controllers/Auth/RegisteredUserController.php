@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 use Illuminate\Http\Response;
+use Http;
 
 class RegisteredUserController extends Controller
 {
