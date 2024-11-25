@@ -22,6 +22,53 @@ class RegisteredUserController extends Controller
         return view('auth.register');
     }
 
+    public function storeAppleUser(Request $request): Response
+    {
+        $request->validate([
+            'identityToken' => 'required|string',
+            'authorizationCode' => 'required|string',
+        ]);
+
+        $identityToken = $request->input('identityToken');
+        $decodedToken = null;
+
+        try {
+            $decodedToken = json_decode(base64_decode(explode('.', $identityToken)[1]), true);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Invalid token'], 401);
+        }
+
+        if (!$decodedToken || empty($decodedToken['email'])) {
+            return response()->json(['error' => 'Invalid token or email missing'], 401);
+        }
+
+        $email = $decodedToken['email'];
+        $appleId = $decodedToken['sub'];
+        $name = $request->input('fullName', null);
+
+        $user = User::where('email', $email)->first();
+
+        if (!$user) {
+            $user = User::create([
+                'name' => $name, 
+                'email' => $email,
+                'apple_id' => $appleId,
+                'password' => Hash::make(uniqid()),
+            ]);
+
+            event(new Registered($user));
+        } else {
+            if (is_null($user->apple_id)) {
+                $user->update(['apple_id' => $appleId]);
+            }
+        }
+
+        return new Response([
+            'token' => $user->createToken($user->email)->plainTextToken,
+            'user' => $user->toArray(),
+        ]);
+    }
+
     public function storeGoogleUser(Request $request): Response {
         $request->validate([
             'idToken' => 'required|string',
