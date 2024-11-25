@@ -11,6 +11,9 @@ use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 use Illuminate\Http\Response;
 use Http;
+use Firebase\JWT\JWT;
+use Firebase\JWT\JWK;
+use stdClass;
 
 class RegisteredUserController extends Controller
 {
@@ -30,6 +33,15 @@ class RegisteredUserController extends Controller
         ]);
 
         $identityToken = $request->input('identityToken');
+
+        try {
+            $keys = Http::get('https://appleid.apple.com/auth/keys')->json();
+            $headers = new stdClass();
+            $decodedToken = JWT::decode($identityToken, JWK::parseKeySet($keys, 'RS256'), $headers);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Invalid identity token'], 401);
+        }
+
         $decodedToken = null;
 
         try {
@@ -50,7 +62,7 @@ class RegisteredUserController extends Controller
 
         if (!$user) {
             $user = User::create([
-                'name' => $name, 
+                'name' => $name ?? '', 
                 'email' => $email,
                 'apple_id' => $appleId,
                 'password' => Hash::make(uniqid()),
