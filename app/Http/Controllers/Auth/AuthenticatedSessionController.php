@@ -21,6 +21,12 @@ class AuthenticatedSessionController extends Controller
         return view('auth.login');
     }
 
+    public function userdata(Request $request): Response {
+        return new Response([
+            'user' => $request->user()->toArray(),
+        ]);
+    }
+
     /**
      * Handle an incoming authentication request.
      */
