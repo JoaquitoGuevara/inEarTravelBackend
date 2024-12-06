@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
@@ -13,4 +14,6 @@ Route::post('register/apple', [RegisteredUserController::class, 'storeAppleUser'
 Route::middleware('auth:sanctum')->group(function() {
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy']);
     Route::get('userdata', [AuthenticatedSessionController::class, 'userdata']);
+
+    Route::get('products', [ProductController::class, 'index']);
 });
