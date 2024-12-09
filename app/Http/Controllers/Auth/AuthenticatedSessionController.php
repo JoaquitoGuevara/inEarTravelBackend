@@ -13,14 +13,6 @@ use Illuminate\Http\Response;
 
 class AuthenticatedSessionController extends Controller
 {
-    /**
-     * Display the login view.
-     */
-    public function create(): View
-    {
-        return view('auth.login');
-    }
-
     public function userdata(Request $request): Response {
         return new Response([
             'user' => $request->user()->toArray(),
