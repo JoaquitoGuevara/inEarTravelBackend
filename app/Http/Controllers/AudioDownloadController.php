@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -9,9 +10,9 @@ class AudioDownloadController extends Controller
 {
     public function getPresignedUrlForAudio(Request $request, string $id)
     {
-        $filePath = "LDM_AUDIO_GUIA_MASTER.mp3";
+        $product = Product::find($id);
 
-        $signedUrl = self::generatePresignedUrl($filePath, 10);
+        $signedUrl = self::generatePresignedUrl($product->audioFile, 10);
 
         return response()->json([
             'signedUrl' => $signedUrl,

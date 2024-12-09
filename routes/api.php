@@ -18,4 +18,5 @@ Route::middleware('auth:sanctum')->group(function() {
 
     Route::get('products', [ProductController::class, 'index']);
     Route::get('myAudios/{id}/downloadUrl', [AudioDownloadController::class, 'getPresignedUrlForAudio']);
+    Route::get('myAudios', [ProductController::class, 'getForUser']);
 });

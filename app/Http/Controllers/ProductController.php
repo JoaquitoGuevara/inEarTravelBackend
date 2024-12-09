@@ -14,7 +14,15 @@ class ProductController extends Controller
     {
         $products = Product::all();
 
-        return response()->json($products);
+        return response()->json(['products' => $products]);
+    }
+
+    public function getForUser(Request $request) {
+        $user = $request->user();
+
+        $audios = $user->products;
+
+        return response()->json(['audios' => $audios]);
     }
 
     /**
