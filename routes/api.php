@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AudioDownloadController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -16,4 +17,5 @@ Route::middleware('auth:sanctum')->group(function() {
     Route::get('userdata', [AuthenticatedSessionController::class, 'userdata']);
 
     Route::get('products', [ProductController::class, 'index']);
+    Route::get('myAudios/{id}/downloadUrl', [AudioDownloadController::class, 'getPresignedUrlForAudio']);
 });
