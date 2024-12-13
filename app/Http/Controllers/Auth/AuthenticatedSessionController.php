@@ -37,6 +37,8 @@ class AuthenticatedSessionController extends Controller
                 'message' => 'The provided credentials are incorrect.',
             ], 401);
         }
+
+        $user->tokens()->delete();
     
         return new Response([
             'token' => $user->createToken($request->email)->plainTextToken,
