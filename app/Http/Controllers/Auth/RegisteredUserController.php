@@ -25,6 +25,63 @@ class RegisteredUserController extends Controller
         return view('auth.register');
     }
 
+    public function storeFacebookUser(Request $request): Response
+    {
+        $request->validate([
+            'accessToken' => 'required|string',
+        ]);
+
+        $accessToken = $request->input('accessToken');
+
+        try {
+            $response = Http::get('https://graph.facebook.com/me', [
+                'fields' => 'id,name,email,picture',
+                'access_token' => $accessToken,
+            ]);
+
+            if ($response->failed()) {
+                return response()->json(['error' => 'Invalid or expired access token'], 401);
+            }
+
+            $facebookData = $response->json();
+
+            if (empty($facebookData['email'])) {
+                return response()->json(['error' => 'Email not provided by Facebook'], 401);
+            }
+
+            $email = $facebookData['email'];
+            $facebookId = $facebookData['id'];
+            $name = $facebookData['name'];
+            $profilePicture = $facebookData['picture']['data']['url'] ?? null;
+
+            $user = User::where('email', $email)->first();
+
+            if (!$user) {
+                $user = User::create([
+                    'name' => $name,
+                    'email' => $email,
+                    'facebook_id' => $facebookId,
+                    'profile_picture' => $profilePicture,
+                    'password' => Hash::make(uniqid()), 
+                ]);
+
+                event(new Registered($user));
+            } else {
+                if (is_null($user->facebook_id)) {
+                    $user->update(['facebook_id' => $facebookId]);
+                }
+            }
+
+            return new Response([
+                'token' => $user->createToken($user->email)->plainTextToken,
+                'user' => $user->toArray(),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error validating access token or fetching user data'], 500);
+        }
+    }
+
+
     public function storeAppleUser(Request $request): Response
     {
         $request->validate([
