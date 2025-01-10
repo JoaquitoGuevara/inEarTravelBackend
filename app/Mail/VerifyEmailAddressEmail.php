@@ -7,16 +7,15 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class TestEmail extends Mailable
+class VerifyEmailAddressEmail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    /**
-     * Create a new message instance.
-     */
-    public function __construct()
+    private $verificationLink;
+
+    public function __construct(string $verificationLink)
     {
-        //
+        $this->verificationLink = $verificationLink;
     }
     
     /**
@@ -26,7 +25,9 @@ class TestEmail extends Mailable
     {
         return $this
             ->from(env('MAIL_FROM_ADDRESS'), env('MAIL_FROM_NAME'))
-            ->subject('This is a test subject by In Ear Travel')
-            ->view('emails.verifyemail');
+            ->subject('Please verify your email address')
+            ->view('emails.verifyemail', [
+                'verificationLink' => $this->verificationLink
+            ]);
     }
 }
