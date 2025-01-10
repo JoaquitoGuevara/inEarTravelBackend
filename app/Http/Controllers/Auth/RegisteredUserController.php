@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Mail\TestEmail;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 use Illuminate\Http\Response;
@@ -23,6 +25,13 @@ class RegisteredUserController extends Controller
     public function create(): View
     {
         return view('auth.register');
+    }
+
+    public function testEmail(): Response 
+    {
+        Mail::to('dev@kay.tours')->send(new TestEmail());
+
+        return new Response('Email sent');
     }
 
     public function storeFacebookUser(Request $request): Response

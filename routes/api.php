@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\AudioDownloadController;
 use App\Http\Controllers\ProductController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
@@ -12,6 +11,7 @@ Route::post('register', [RegisteredUserController::class, 'store']);
 Route::post('register/google', [RegisteredUserController::class, 'storeGoogleUser']);
 Route::post('register/apple', [RegisteredUserController::class, 'storeAppleUser']);
 Route::post('register/facebook', [RegisteredUserController::class, 'storeFacebookUser']);
+Route::post('testemail', [RegisteredUserController::class, 'testEmail']);
 
 Route::middleware('auth:sanctum')->group(function() {
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy']);
