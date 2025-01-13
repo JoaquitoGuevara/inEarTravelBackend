@@ -13,6 +13,7 @@
         "laravel/socialite": "^5.16",
         "laravel/tinker": "^2.9",
         "league/flysystem-aws-s3-v3": "^3.29",
+        "sendgrid/sendgrid": "^8.1",
         "socialiteproviders/apple": "^5.6"
     },
     "require-dev": {

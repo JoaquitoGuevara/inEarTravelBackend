@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Events\RegisteredUser;
 use App\Http\Controllers\Controller;
-use App\Mail\TestEmail;
 use App\Models\User;
+use App\Services\SendGridService;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 use Illuminate\Http\Response;
@@ -16,6 +16,7 @@ use Http;
 use Firebase\JWT\JWT;
 use Firebase\JWT\JWK;
 use stdClass;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class RegisteredUserController extends Controller
 {
@@ -27,11 +28,17 @@ class RegisteredUserController extends Controller
         return view('auth.register');
     }
 
-    public function testEmail(): Response 
+    public function testEmail(SendGridService $sendGrid): JsonResponse 
     {
-        Mail::to('dev@kay.tours')->send(new TestEmail());
+        $response = $sendGrid->send('dev@kay.tours', SendGridService::VerifyEmailTemplate, [
+            "name" => "Joaco",
+            "verificationLink" => "https://google.com/",
+        ]);
 
-        return new Response('Email sent');
+        if (isset($response['error'])) 
+            return response()->json($response, 500);
+    
+        return response()->json($response);
     }
 
     public function storeFacebookUser(Request $request): Response
@@ -200,7 +207,7 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        event(new Registered($user));
+        event(new RegisteredUser($user));
 
         return new Response([
             'token' => $user->createToken($request->email)->plainTextToken,
