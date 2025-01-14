@@ -6,9 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
-    protected $fillable = ['name', 'price', 'audioFile', 'photo', 'description'];
+    protected $fillable = ['name', 'price', 'audioFile', 'photo', 'description', 'iapProductId'];
 
-    protected $hidden = ['audioFile'];
+    protected $hidden = ['audioFile', 'iapProductId'];
 
     public function users()
     {

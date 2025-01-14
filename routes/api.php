@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AudioDownloadController;
+use App\Http\Controllers\InAppPurchaseController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
@@ -20,4 +21,6 @@ Route::middleware('auth:sanctum')->group(function() {
     Route::get('products', [ProductController::class, 'index']);
     Route::get('myAudios/{id}/downloadUrl', [AudioDownloadController::class, 'getPresignedUrlForAudio']);
     Route::get('myAudios', [ProductController::class, 'getForUser']);
+
+    Route::post('verify-iap', [InAppPurchaseController::class, 'verifyIap']);
 });
