@@ -69,6 +69,7 @@ class InAppPurchaseController extends Controller
                     ], 400);
                 }
 
+                Log::info('Android IAP Verification data:', ['data' => $data]);
                 $validatedProductId = $data['productId'];
             }
             else {
