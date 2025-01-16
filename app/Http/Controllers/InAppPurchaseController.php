@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use App\Services\GooglePlayTokenService;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 class InAppPurchaseController extends Controller
 {
@@ -112,10 +113,11 @@ class InAppPurchaseController extends Controller
                 }
             }
         } catch (Exception $e) {
+            Log::error('Exception verifying IAP', ['exception' => $e]);
             return response()->json([
                 'status'  => 'error',
                 'message' => $e->getMessage(),
-            ], 500);
+            ], status: 500);
         }
 
         if ($validatedProductId === null) {
