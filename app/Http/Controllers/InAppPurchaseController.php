@@ -70,7 +70,7 @@ class InAppPurchaseController extends Controller
                 }
 
                 Log::info('Android IAP Verification data:', ['data' => $data]);
-                $validatedProductId = $data['productId'];
+                $validatedProductId = $productId;
             }
             else {
                 $productionEndpoint = 'https://buy.itunes.apple.com/verifyReceipt';
