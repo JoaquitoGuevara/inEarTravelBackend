@@ -31,7 +31,7 @@ class AudioDownloadController extends Controller
 
         $product = Product::find($id);
 
-        if (!$user->products()->where('id', $id)->exists()) {
+        if (!$user->products()->where('products.id', $id)->exists()) {
             return response()->json(['error' => 'Unauthorized access to this audio'], 403);
         }
 
