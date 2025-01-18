@@ -8,7 +8,7 @@ class Product extends Model
 {
     protected $fillable = ['name', 'price', 'audioFile', 'photo', 'description', 'iapProductId', 'sampleAudioFile'];
 
-    protected $hidden = ['audioFile'];
+    protected $hidden = ['audioFile', 'sampleAudioFile'];
 
     public function users()
     {

@@ -20,6 +20,7 @@ Route::middleware('auth:sanctum')->group(function() {
 
     Route::get('products', [ProductController::class, 'index']);
     Route::get('myAudios/{id}/downloadUrl', [AudioDownloadController::class, 'getPresignedUrlForAudio']);
+    Route::get('myAudios/{id}/downloadSampleUrl', [AudioDownloadController::class, 'getPresignedUrlForSampleAudio']);
     Route::get('myAudios', [ProductController::class, 'getForUser']);
 
     Route::post('verify-iap', [InAppPurchaseController::class, 'verifyIap']);
