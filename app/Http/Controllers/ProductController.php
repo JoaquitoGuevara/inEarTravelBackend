@@ -25,51 +25,20 @@ class ProductController extends Controller
         return response()->json(['audios' => $audios]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+    public function validateCoupon(Request $request) {
+        $request->validate([
+            "code" => "required",
+        ]);
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        $code = $request->query("code");
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Product $product)
-    {
-        //
-    }
+        if ($code === "KAYTOURSMEXICO" || 
+            $code === "LIVINGDREAMS")
+            return response()->json(['newPrice' => 1.99]);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Product $product)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Product $product)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Product $product)
-    {
-        //
+        return response()->json([
+            'status' => 'error',
+            'message' => 'The code is not valid'
+        ], 404);
     }
 }
