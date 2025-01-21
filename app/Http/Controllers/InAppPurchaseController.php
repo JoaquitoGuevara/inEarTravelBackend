@@ -139,7 +139,18 @@ class InAppPurchaseController extends Controller
             ], 404);
         }
 
-        $user->products()->syncWithoutDetaching([$product->id]);
+        $alternativeAudioFile = null;
+
+        if ($validatedProductId === "ldmchichenitzaaudioguide")
+            $alternativeAudioFile = "LDM_AUDIO_GUIA_MASTER.mp3";
+        else if ($validatedProductId === "ktmchichenitzaaudioguide")
+            $alternativeAudioFile = "KTM_AUDIO_GUIA_MASTER.mp3";
+
+        $user->products()->syncWithoutDetaching([
+            $product->id => [
+                'audioFile' => $alternativeAudioFile
+            ]
+        ]);
 
         return response()->json([
             'status' => 'success',

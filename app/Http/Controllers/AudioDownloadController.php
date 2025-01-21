@@ -12,13 +12,15 @@ class AudioDownloadController extends Controller
     {
         $user = $request->user();
 
-        $product = Product::find($id);
+        $product = $user->products()->where('products.id', $id)->first();
 
-        if (!$user->products()->where('products.id', $id)->exists()) {
+        if (!$product) {
             return response()->json(['error' => 'Unauthorized access to this audio'], 403);
         }
 
-        $signedUrl = self::generatePresignedUrl($product->audioFile, 10);
+        $audioFile = $product->pivot->audioFile ?? $product->audioFile;
+
+        $signedUrl = self::generatePresignedUrl($audioFile, 10);
 
         return response()->json([
             'signedUrl' => $signedUrl,

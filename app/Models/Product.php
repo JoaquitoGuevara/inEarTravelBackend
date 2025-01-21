@@ -12,6 +12,6 @@ class Product extends Model
 
     public function users()
     {
-        return $this->belongsToMany(User::class, 'product_user');
+        return $this->belongsToMany(User::class, 'product_user')->withPivot('audioFile');
     }
 }
