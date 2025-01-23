@@ -14,4 +14,9 @@ class Product extends Model
     {
         return $this->belongsToMany(User::class, 'product_user')->withPivot('audioFile');
     }
+
+    public function timestamps()
+    {
+        return $this->hasMany(AudioTimestamp::class);
+    }
 }

@@ -20,7 +20,7 @@ class ProductController extends Controller
     public function getForUser(Request $request) {
         $user = $request->user();
 
-        $audios = $user->products;
+        $audios = $user->products()->with('timestamps')->get();
 
         return response()->json(['audios' => $audios]);
     }
