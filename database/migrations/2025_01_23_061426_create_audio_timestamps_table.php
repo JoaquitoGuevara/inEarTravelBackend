@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('audio_timestamps', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('product_id'); 
-            $table->timestamp('start_timestamp');  
-            $table->timestamp('end_timestamp');  
+            $table->string('start_timestamp');  
+            $table->string('end_timestamp');  
             $table->timestamps();
 
             // Add foreign key constraint
