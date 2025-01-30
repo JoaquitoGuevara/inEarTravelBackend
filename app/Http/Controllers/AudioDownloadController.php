@@ -29,13 +29,7 @@ class AudioDownloadController extends Controller
 
     public function getPresignedUrlForSampleAudio(Request $request, string $id)
     {
-        $user = $request->user();
-
         $product = Product::find($id);
-
-        if (!$user->products()->where('products.id', $id)->exists()) {
-            return response()->json(['error' => 'Unauthorized access to this audio'], 403);
-        }
 
         $signedUrl = self::generatePresignedUrl($product->sampleAudioFile, 10);
 
