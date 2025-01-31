@@ -82,8 +82,6 @@ class RegisteredUserController extends Controller
                     'password' => Hash::make(uniqid()), 
                 ]);
 
-                $this->attachSharedProducts($user);
-
                 event(new Registered($user));
             } else {
                 if (is_null($user->facebook_id)) {
@@ -94,6 +92,7 @@ class RegisteredUserController extends Controller
             return new Response([
                 'token' => $user->createToken($user->email)->plainTextToken,
                 'user' => $user->toArray(),
+                'hadPendingSharedAudios' => $this->attachSharedProducts($user),
             ]);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Error validating access token or fetching user data'], 500);
@@ -144,8 +143,6 @@ class RegisteredUserController extends Controller
                 'password' => Hash::make(uniqid()),
             ]);
 
-            $this->attachSharedProducts($user);
-
             event(new Registered($user));
         } else {
             if (is_null($user->apple_id)) {
@@ -156,6 +153,7 @@ class RegisteredUserController extends Controller
         return new Response([
             'token' => $user->createToken($user->email)->plainTextToken,
             'user' => $user->toArray(),
+            'hadPendingSharedAudios' => $this->attachSharedProducts($user),
         ]);
     }
 
@@ -184,8 +182,6 @@ class RegisteredUserController extends Controller
                 'profile_picture' => $googleData['picture'] ?? null,
                 'password' => Hash::make(uniqid()),
             ]);
-
-            $this->attachSharedProducts($user);
     
             event(new Registered($user));
         } else {
@@ -197,6 +193,7 @@ class RegisteredUserController extends Controller
         return new Response([
             'token' => $user->createToken($user->email)->plainTextToken,
             'user' => $user->toArray(),
+            'hadPendingSharedAudios' => $this->attachSharedProducts($user),
         ]);
     }
 
@@ -214,22 +211,25 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        $this->attachSharedProducts($user);
-
         event(new RegisteredUser($user));
 
         return new Response([
             'token' => $user->createToken($request->email)->plainTextToken,
             'user' => $user->toArray(),
+            'hadPendingSharedAudios' => $this->attachSharedProducts($user),
         ]);
     }
 
     private function attachSharedProducts($user) {
         $pendingShares = PendingShareDestination::where('email', $user->email)->get();
+        $hadPending = false;
         
         foreach ($pendingShares as $pendingShare) {
             $user->products()->attach($pendingShare->product_id);
             $pendingShare->delete();
+            $hadPending = true;
         }
+
+        return $hadPending;
     }
 }
