@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Events\RegisteredUser;
 use App\Http\Controllers\Controller;
+use App\Models\PendingShareDestination;
 use App\Models\User;
 use App\Services\SendGridService;
 use Illuminate\Auth\Events\Registered;
@@ -81,6 +82,8 @@ class RegisteredUserController extends Controller
                     'password' => Hash::make(uniqid()), 
                 ]);
 
+                $this->attachSharedProducts($user);
+
                 event(new Registered($user));
             } else {
                 if (is_null($user->facebook_id)) {
@@ -141,6 +144,8 @@ class RegisteredUserController extends Controller
                 'password' => Hash::make(uniqid()),
             ]);
 
+            $this->attachSharedProducts($user);
+
             event(new Registered($user));
         } else {
             if (is_null($user->apple_id)) {
@@ -179,6 +184,8 @@ class RegisteredUserController extends Controller
                 'profile_picture' => $googleData['picture'] ?? null,
                 'password' => Hash::make(uniqid()),
             ]);
+
+            $this->attachSharedProducts($user);
     
             event(new Registered($user));
         } else {
@@ -207,11 +214,22 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
+        $this->attachSharedProducts($user);
+
         event(new RegisteredUser($user));
 
         return new Response([
             'token' => $user->createToken($request->email)->plainTextToken,
             'user' => $user->toArray(),
         ]);
+    }
+
+    private function attachSharedProducts($user) {
+        $pendingShares = PendingShareDestination::where('email', $user->email)->get();
+        
+        foreach ($pendingShares as $pendingShare) {
+            $user->products()->attach($pendingShare->product_id);
+            $pendingShare->delete();
+        }
     }
 }

@@ -11,6 +11,7 @@ class SendGridService
 
     const VerifyEmailTemplate = "d-fdcb613fe99048c8ba71b830fddb43ca";
     const AudioSharedWithYouTemplate = "d-a55d3409f06448acaa4c94a53e2e6446";
+    const AudioSharedWithNonUserTemplate = "d-a788546e8362432c89954457488c792d";
 
     public function __construct()
     {

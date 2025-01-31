@@ -19,4 +19,9 @@ class Product extends Model
     {
         return $this->hasMany(AudioTimestamp::class);
     }
+
+    public function pendingShareDestinations()
+    {
+        return $this->hasMany(PendingShareDestination::class);
+    }
 }

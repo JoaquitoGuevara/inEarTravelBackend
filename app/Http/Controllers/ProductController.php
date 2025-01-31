@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PendingShareDestination;
 use App\Models\Product;
 use App\Notifications\AudioSharedWithYouPushNotification;
 use App\Services\SendGridService;
@@ -24,15 +25,15 @@ class ProductController extends Controller
         $user = $request->user();
         $destinationUser = User::where('email', $request->email)->first();
 
+        $productWithPivot = $user->products()->wherePivot('product_id', $product->id)->withPivot('timesShared')->first();
+
+        if (!$productWithPivot) 
+            return response()->json(['message' => 'Audio not found'], 404);
+        
+        if ($productWithPivot->pivot->timesShared > 0)
+            return response()->json(['message' => 'Audio already shared once'], 400);
+
         if ($destinationUser) {
-            $productWithPivot = $user->products()->wherePivot('product_id', $product->id)->withPivot('timesShared')->first();
-
-            if (!$productWithPivot) 
-                return response()->json(['message' => 'Audio not found'], 404);
-            
-            //if ($productWithPivot->pivot->timesShared > 0)
-                //return response()->json(['message' => 'Audio already shared once'], 400);
-
             $user->products()->updateExistingPivot($product->id, [
                 'timesShared' => $productWithPivot->pivot->timesShared + 1
             ]);
@@ -51,6 +52,24 @@ class ProductController extends Controller
            
             return response()->json(['message' => 'Audio shared successfully']);
         }
+
+        $user->products()->updateExistingPivot($product->id, [
+            'timesShared' => $productWithPivot->pivot->timesShared + 1
+        ]);
+
+        PendingShareDestination::create([
+            'product_id' => $product->id,
+            'email' => $request->email
+        ]);
+
+        $this->sendGrid->send($request->email, SendGridService::AudioSharedWithNonUserTemplate, [
+            "name" => $user->name,
+            "audioTitle" => $product->name,
+            "audioDescription" => $product->description,
+            "audioPhoto" => $product->photo,
+        ]);
+
+        return response()->json(['message' => 'An invitation to sign up has been sent to the email address provided']);
     }
     public function index()
     {
