@@ -13,7 +13,7 @@ return new class extends Migration
         Schema::create(config('expo-notifications.database.notifications_table_name', 'expo_notifications'), function (Blueprint $table) {
             $table->id();
 
-            $table->json('data');
+            $table->text('data');
 
             $table->timestamps();
         });
