@@ -4,12 +4,35 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+use App\Models\User;
 
 class ProductController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    public function share(Request $request, Product $product) {
+        $request->validate([
+            "email" => "required|email",
+        ]);
+
+        $user = $request->user();
+        $destinationUser = User::where('email', $request->email)->first();
+        
+        if ($destinationUser) {
+            $productWithPivot = $user->products()->wherePivot('product_id', $product->id)->withPivot('timesShared')->first();
+
+            if (!$productWithPivot) 
+                return response()->json(['message' => 'Audio not found'], 404);
+            
+            if ($productWithPivot->pivot->timesShared > 0)
+                return response()->json(['message' => 'Audio already shared once'], 400);
+
+            $user->products()->updateExistingPivot($product->id, [
+                'timesShared' => $productWithPivot->pivot->timesShared + 1
+            ]);
+            $destinationUser->products()->attach($product->id);
+           
+            return response()->json(['message' => 'Audio shared successfully']);
+        }
+    }
     public function index()
     {
         $products = Product::all();

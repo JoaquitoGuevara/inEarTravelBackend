@@ -12,7 +12,7 @@ class Product extends Model
 
     public function users()
     {
-        return $this->belongsToMany(User::class, 'product_user')->withPivot('audioFile');
+        return $this->belongsToMany(User::class, 'product_user')->withPivot('audioFile, timesShared');
     }
 
     public function timestamps()
