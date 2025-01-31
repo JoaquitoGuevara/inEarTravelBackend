@@ -31,7 +31,7 @@ class ProductController extends Controller
             return response()->json(['message' => 'Audio not found'], 404);
         
         if ($productWithPivot->pivot->timesShared > 0)
-            return response()->json(['message' => 'Audio already shared once'], 400);
+            return response()->json(['message' => 'You’ve already shared the audio once for free. To share it with more users, you can do so at a discounted price'], 400);
 
         if ($destinationUser) {
             $user->products()->updateExistingPivot($product->id, [
