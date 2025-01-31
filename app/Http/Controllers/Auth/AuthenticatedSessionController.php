@@ -19,6 +19,20 @@ class AuthenticatedSessionController extends Controller
         ]);
     }
 
+    public function setExpoPushToken(Request $request) {
+        $request->validate([
+            'token' => 'required',
+        ]);
+
+        $user = $request->user();
+        $user->expo_push_token = $request->token;
+        $user->save();
+
+        return response()->json([
+            'message' => 'Expo push token saved successfully',
+        ]);
+    }
+
     /**
      * Handle an incoming authentication request.
      */

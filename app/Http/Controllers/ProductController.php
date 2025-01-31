@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Notifications\AudioSharedWithYouPushNotification;
 use App\Services\SendGridService;
 use Illuminate\Http\Request;
 use App\Models\User;
@@ -37,12 +38,16 @@ class ProductController extends Controller
             ]);
             $destinationUser->products()->attach($product->id);
 
-            $response = $this->sendGrid->send($request->email, SendGridService::AudioSharedWithYouTemplate, [
+            $this->sendGrid->send($request->email, SendGridService::AudioSharedWithYouTemplate, [
                 "name" => $user->name,
                 "audioTitle" => $product->name,
                 "audioDescription" => $product->description,
                 "audioPhoto" => $product->photo,
             ]);
+            $destinationUser->notify(new AudioSharedWithYouPushNotification(
+                "Someone shared you an audio guide",
+                $user->name . " shared you " . $product->name,
+            ));
            
             return response()->json(['message' => 'Audio shared successfully']);
         }
