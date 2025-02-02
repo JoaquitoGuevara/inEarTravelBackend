@@ -39,12 +39,13 @@ class ProductController extends Controller
             ]);
             $destinationUser->products()->attach($product->id);
 
-            $this->sendGrid->send($request->email, SendGridService::AudioSharedWithYouTemplate, [
+            $response = $this->sendGrid->send($request->email, SendGridService::AudioSharedWithYouTemplate, [
                 "name" => $user->name,
                 "audioTitle" => $product->name,
                 "audioDescription" => $product->description,
                 "audioPhoto" => $product->photo,
             ]);
+            error_log(json_encode($response));
             $destinationUser->notify(new AudioSharedWithYouPushNotification(
                 "Someone shared you an audio guide",
                 $user->name . " shared you " . $product->name,
@@ -62,16 +63,16 @@ class ProductController extends Controller
             'email' => $request->email
         ]);
 
-        $this->sendGrid->send($request->email, SendGridService::AudioSharedWithNonUserTemplate, [
+        $response = $this->sendGrid->send($request->email, SendGridService::AudioSharedWithNonUserTemplate, [
             "name" => $user->name,
             "audioTitle" => $product->name,
             "audioDescription" => $product->description,
             "audioPhoto" => $product->photo,
         ]);
+        error_log(json_encode($response));
 
         return response()->json(['message' => 'An invitation to sign up has been sent to the email address provided']);
-    }
-    public function index()
+    }    public function index()
     {
         $products = Product::all();
 
