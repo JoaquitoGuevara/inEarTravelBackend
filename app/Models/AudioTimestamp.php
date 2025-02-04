@@ -14,6 +14,7 @@ class AudioTimestamp extends Model
         'title',
         'start_timestamp',
         'end_timestamp',
+        'forAudioFile',
     ];
 
     /**
