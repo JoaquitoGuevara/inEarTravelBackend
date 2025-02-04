@@ -20,6 +20,9 @@ class AudioSharedWithYouPushNotification extends Notification
 
     public function toExpoNotification($notifiable): ExpoMessage
     {
+        if (!$notifiable->expo_push_token)
+            return new ExpoMessage();
+
         return (new ExpoMessage())
             ->to([$notifiable->expo_push_token])
             ->title($this->title)

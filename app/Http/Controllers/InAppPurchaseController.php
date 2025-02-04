@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PendingShareDestination;
 use App\Models\Product;
+use App\Models\User;
+use App\Notifications\AudioSharedWithYouPushNotification;
+use App\Services\SendGridService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use App\Services\GooglePlayTokenService;
@@ -11,8 +15,120 @@ use Illuminate\Support\Facades\Log;
 
 class InAppPurchaseController extends Controller
 {
-    public function verifyIap(Request $request)
-    {
+    private SendGridService $sendGrid;
+
+    public function __construct(SendGridService $sendGrid) {
+        $this->sendGrid = $sendGrid;
+    }
+    public function verifyIapForShare(Request $request) {
+        $request->validate([
+            'packageName'   => 'required|string',
+            'productId'     => 'required|string',
+            'purchaseToken' => 'string',
+            'transactionReceipt' => 'string',
+            'destinationEmail' => 'required|email',
+        ]);
+
+        $packageName = $request->input('packageName');
+        $productId = $request->input('productId');
+        $purchaseToken = $request->input('purchaseToken');
+        $transactionReceipt = $request->input('transactionReceipt');
+        $destinationEmail = $request->input('destinationEmail');
+
+        if (!str_starts_with($productId, 'forshare')) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invalid product ID for sharing. Missing required prefix'
+            ], 400);
+        }
+
+        $verification = true;//$this->verifyPurchase($packageName, $productId, $purchaseToken, $transactionReceipt);
+
+        if ($verification !== true)
+            return $verification;
+
+        $normalizedProductId = substr($productId, strlen('forshare'));
+
+        $user = $request->user();
+
+        $product = $user->products()
+                ->where('iapProductId', $normalizedProductId)
+                ->first();
+
+        if (!$product) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'We couldn\'t find a product associated with this product id. Please contact support'
+            ], 404);
+        }
+
+        $audioFile = $product->pivot->audioFile || $product->audioFile;
+
+        $destinationUser = User::where('email', $destinationEmail)->first();
+
+        if ($destinationUser) { 
+            $destinationUserProducts = $destinationUser->products();
+            if ($destinationUserProducts->where('products.id', $product->id)->exists()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'This user already has access to this audio guide',
+                ], 400);
+            }
+
+            $destinationUserProducts->syncWithoutDetaching([
+                $product->id => [
+                    'audioFile' => $audioFile
+                ]
+            ]);
+
+            $user->products()->updateExistingPivot($product->id, [
+                'timesShared' => $product->pivot->timesShared + 1
+            ]);
+
+            $this->sendGrid->send($request->email, SendGridService::AudioSharedWithYouTemplate, [
+                "name" => $user->name,
+                "audioTitle" => $product->name,
+                "audioDescription" => $product->description,
+                "audioPhoto" => $product->photo,
+            ]);
+            $destinationUser->notify(new AudioSharedWithYouPushNotification(
+                "Someone shared you an audio guide",
+                $user->name . " shared you " . $product->name,
+            ));
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Audio shared successfully',
+            ]);
+        }
+
+        $existingPendingShare = PendingShareDestination::where('product_id', $product->id)
+            ->where('email', $destinationEmail)
+            ->first();
+
+        if ($existingPendingShare) 
+            return response()->json(['message' => 'This email already has a pending share invitation for this audio guide'], 400);
+
+        PendingShareDestination::create([
+            'product_id' => $product->id,
+            'email' => $destinationEmail
+        ]);
+
+        $user->products()->updateExistingPivot($product->id, [
+            'timesShared' => $product->pivot->timesShared + 1
+        ]);
+
+        $this->sendGrid->send($destinationEmail, SendGridService::AudioSharedWithNonUserTemplate, [
+            "name" => $user->name,
+            "audioTitle" => $product->name,
+            "audioDescription" => $product->description,
+            "audioPhoto" => $product->photo,
+        ]);
+
+        return response()->json(['message' => 'An invitation to sign up has been sent to the email address provided']);
+    }
+
+    public function verifyIap(Request $request) {
         $request->validate([
             'packageName'   => 'required|string',
             'productId'     => 'required|string',
@@ -25,6 +141,42 @@ class InAppPurchaseController extends Controller
         $purchaseToken = $request->input('purchaseToken');
         $transactionReceipt = $request->input('transactionReceipt');
 
+        $verification = $this->verifyPurchase($packageName, $productId, $purchaseToken, $transactionReceipt);
+
+        if ($verification !== true)
+            return $verification;
+
+        $user = $request->user();
+
+        $product = Product::where('iapProductId', $productId)->first();
+
+        if (!$product) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'We couldn\'t find a product associated with this product id. Please contact support'
+            ], 404);
+        }
+
+        $alternativeAudioFile = null;
+
+        if ($productId === "ldmchichenitzaaudioguide")
+            $alternativeAudioFile = "LDM_AUDIO_GUIA_MASTER.mp3";
+        else if ($productId === "ktmchichenitzaaudioguide")
+            $alternativeAudioFile = "KTM_AUDIO_GUIA_MASTER.mp3";
+
+        $user->products()->syncWithoutDetaching([
+            $product->id => [
+                'audioFile' => $alternativeAudioFile
+            ]
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Audioguide unlocked',
+        ]);
+    }
+
+    private function verifyPurchase(string $packageName, string $productId, string $purchaseToken, string $transactionReceipt) {
         if (!$purchaseToken && !$transactionReceipt) {
             return response()->json([ 
                 'status' => 'error',
@@ -127,34 +279,13 @@ class InAppPurchaseController extends Controller
                 'message' => 'There is no matching product id',
             ], 400);
         }
-
-        $user = $request->user();
-
-        $product = Product::where('iapProductId', $validatedProductId)->first();
-
-        if (!$product) {
+        if ($validatedProductId !== $productId) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'We couldn\'t find a product associated with this product id. Please contact support'
-            ], 404);
+                'message' => 'There is a mismatch between the validated product id and the requested product id',
+            ], 400);
         }
 
-        $alternativeAudioFile = null;
-
-        if ($validatedProductId === "ldmchichenitzaaudioguide")
-            $alternativeAudioFile = "LDM_AUDIO_GUIA_MASTER.mp3";
-        else if ($validatedProductId === "ktmchichenitzaaudioguide")
-            $alternativeAudioFile = "KTM_AUDIO_GUIA_MASTER.mp3";
-
-        $user->products()->syncWithoutDetaching([
-            $product->id => [
-                'audioFile' => $alternativeAudioFile
-            ]
-        ]);
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Audioguide unlocked',
-        ]);
+        return true;
     }
 }

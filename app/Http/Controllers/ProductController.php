@@ -34,10 +34,17 @@ class ProductController extends Controller
             return response()->json(['message' => 'You’ve already shared the audio once for free. To share it with more users, you can do so at a discounted price'], 400);
 
         if ($destinationUser) {
+            if ($destinationUser->products()->where('product_id', $product->id)->exists()) 
+                return response()->json(['message' => 'This user already has access to this audio guide'], 400);
+
+            $destinationUser->products()->syncWithoutDetaching([
+                $product->id => [
+                    'audioFile' => $productWithPivot->pivot->audioFile || $product->audioFile
+                ]
+            ]);
             $user->products()->updateExistingPivot($product->id, [
                 'timesShared' => $productWithPivot->pivot->timesShared + 1
             ]);
-            $destinationUser->products()->attach($product->id);
 
             $response = $this->sendGrid->send($request->email, SendGridService::AudioSharedWithYouTemplate, [
                 "name" => $user->name,
@@ -54,13 +61,20 @@ class ProductController extends Controller
             return response()->json(['message' => 'Audio shared successfully']);
         }
 
-        $user->products()->updateExistingPivot($product->id, [
-            'timesShared' => $productWithPivot->pivot->timesShared + 1
-        ]);
+        $existingPendingShare = PendingShareDestination::where('product_id', $product->id)
+            ->where('email', $request->email)
+            ->first();
+
+        if ($existingPendingShare) 
+            return response()->json(['message' => 'This email already has a pending share invitation for this audio guide'], 400);
 
         PendingShareDestination::create([
             'product_id' => $product->id,
             'email' => $request->email
+        ]);
+
+        $user->products()->updateExistingPivot($product->id, [
+            'timesShared' => $productWithPivot->pivot->timesShared + 1
         ]);
 
         $response = $this->sendGrid->send($request->email, SendGridService::AudioSharedWithNonUserTemplate, [
@@ -72,8 +86,9 @@ class ProductController extends Controller
         error_log(json_encode($response));
 
         return response()->json(['message' => 'An invitation to sign up has been sent to the email address provided']);
-    }    public function index()
-    {
+    }   
+    
+    public function index()    {
         $products = Product::all();
 
         return response()->json(['products' => $products]);

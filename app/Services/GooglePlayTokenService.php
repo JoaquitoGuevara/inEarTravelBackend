@@ -12,7 +12,6 @@ class GooglePlayTokenService
     {
         // 1) Read the path from the env.
         $serviceAccountPath = base_path(env('GOOGLE_SERVICE_ACCOUNT_PATH'));
-        Log::info('Resolved service account path: ' . $serviceAccountPath);
         if (!$serviceAccountPath || !file_exists($serviceAccountPath)) {
             throw new Exception('Service account file not found at: ' . $serviceAccountPath);
         }
