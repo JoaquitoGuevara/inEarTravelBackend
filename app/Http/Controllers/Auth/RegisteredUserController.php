@@ -42,7 +42,7 @@ class RegisteredUserController extends Controller
         return response()->json($response);
     }
 
-    public function storeFacebookUser(Request $request): Response
+    public function storeFacebookUser(Request $request): JsonResponse
     {
         $request->validate([
             'accessToken' => 'required|string',
@@ -89,7 +89,7 @@ class RegisteredUserController extends Controller
                 }
             }
 
-            return new Response([
+            return response()->json([
                 'token' => $user->createToken($user->email)->plainTextToken,
                 'user' => $user->toArray(),
                 'hadPendingSharedAudios' => $this->attachSharedProducts($user),
