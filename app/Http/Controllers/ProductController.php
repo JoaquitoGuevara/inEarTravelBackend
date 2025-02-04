@@ -116,7 +116,14 @@ class ProductController extends Controller
     public function getForUser(Request $request) {
         $user = $request->user();
 
-        $audios = $user->products()->with('timestamps')->get();
+        $audios = $user->products()->with('timestamps')->get()->toArray();
+
+        foreach ($audios as &$audio) {
+            $audioFile = $audio['pivot']['audioFile'];
+            $audio['timestamps'] = array_values(array_filter($audio['timestamps'], function($timestamp) use ($audioFile) {
+                return $timestamp['forAudioFile'] === $audioFile;
+            }));
+        }
 
         return response()->json(['audios' => $audios]);
     }
