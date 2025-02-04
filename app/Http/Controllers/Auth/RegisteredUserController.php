@@ -57,13 +57,14 @@ class RegisteredUserController extends Controller
             ]);
 
             if ($response->failed()) {
-                return response()->json(['error' => 'Invalid or expired access token'], 401);
+                error_log('Facebook API request failed: ' . $response->body());
+                return response()->json(['message' => 'Invalid or expired access token'], 401);
             }
 
             $facebookData = $response->json();
 
             if (empty($facebookData['email'])) {
-                return response()->json(['error' => 'Email not provided by Facebook'], 401);
+                return response()->json(['message' => 'Email not provided by Facebook'], 401);
             }
 
             $email = $facebookData['email'];
@@ -95,7 +96,7 @@ class RegisteredUserController extends Controller
                 'hadPendingSharedAudios' => $this->attachSharedProducts($user),
             ]);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Error validating access token or fetching user data'], 500);
+            return response()->json(['message' => 'Error validating access token or fetching user data'], 500);
         }
     }
 
