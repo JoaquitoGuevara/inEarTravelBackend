@@ -24,8 +24,15 @@ class ProductController extends Controller
 
         $user = User::where('email', operator: $request->email)->first();
 
+        $existingPendingShare = PendingShareDestination::where('product_id', $product->id)
+            ->where('email', $request->email)
+            ->first();
+
+        $owned = $user ? $user->products()->where('products.id', $product->id)->exists() : false;
+        $owned = $existingPendingShare ? true : $owned;
+
         return response()->json([
-            'owned' => $user ? $user->products()->where('products.id', $product->id)->exists() : false
+            'owned' => $owned
         ], 200);
     }
 
