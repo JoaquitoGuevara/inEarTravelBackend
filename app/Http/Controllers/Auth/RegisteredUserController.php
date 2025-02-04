@@ -52,7 +52,7 @@ class RegisteredUserController extends Controller
 
         try {
             $response = Http::get('https://graph.facebook.com/me', [
-                'fields' => 'id,name,email,picture,type(large)',
+                'fields' => 'id,name,email,picture.type(large)',
                 'access_token' => $accessToken,
             ]);
 
