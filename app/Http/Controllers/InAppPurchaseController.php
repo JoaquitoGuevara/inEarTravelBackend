@@ -42,7 +42,7 @@ class InAppPurchaseController extends Controller
             ], 400);
         }
 
-        $verification = true;//$this->verifyPurchase($packageName, $productId, $purchaseToken, $transactionReceipt);
+        $verification = $this->verifyPurchase($packageName, $productId, $purchaseToken, $transactionReceipt);
 
         if ($verification !== true)
             return $verification;
