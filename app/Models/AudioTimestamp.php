@@ -11,6 +11,7 @@ class AudioTimestamp extends Model
 
     protected $fillable = [
         'product_id',
+        'title',
         'start_timestamp',
         'end_timestamp',
     ];
