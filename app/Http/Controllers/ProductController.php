@@ -17,6 +17,18 @@ class ProductController extends Controller
         $this->sendGrid = $sendGrid;
     }
 
+    public function isOwnedByExistingUser(Request $request, Product $product) {
+        $request->validate([
+            "email" => "required|email",
+        ]);
+
+        $user = User::where('email', operator: $request->email)->first();
+
+        return response()->json([
+            'owned' => $user ? $user->products()->where('products.id', $product->id)->exists() : false
+        ], 200);
+    }
+
     public function share(Request $request, Product $product) {
         $request->validate([
             "email" => "required|email",

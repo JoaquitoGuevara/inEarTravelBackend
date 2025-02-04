@@ -98,7 +98,7 @@ class InAppPurchaseController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Audio shared successfully',
+                'message' => 'The user now has this audio guide in their library',
             ]);
         }
 
@@ -172,7 +172,7 @@ class InAppPurchaseController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Audioguide unlocked',
+            'message' => 'Your new audio can now be found in the My Audios tab',
         ]);
     }
 
