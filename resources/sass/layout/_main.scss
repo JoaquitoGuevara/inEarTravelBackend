@@ -1,11 +1,13 @@
-.is-boxed {
-    background-image: url('/dist/images/teotihuacan.jpg');
-    background-repeat: no-repeat;
+.background {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: url('/dist/images/teotihuacan.jpg') no-repeat;
+    background-size: cover;
 }
 
 .body-wrap {
-    background: url('/dist/images/teotihuacan.jpg') no-repeat;
-    background-size: contain;
+    background: transparent;
     overflow: hidden;
     /* Sticky footer */
     display: flex;

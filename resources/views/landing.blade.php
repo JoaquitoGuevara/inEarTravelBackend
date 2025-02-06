@@ -22,6 +22,7 @@
     <script src="https://unpkg.com/scrollreveal@4.0.0/dist/scrollreveal.min.js"></script>
 </head>
 <body class="is-boxed has-animations">
+    <div class="background"></div>
     <div class="body-wrap boxed-container">
         <header class="site-header">
             <div class="container">
