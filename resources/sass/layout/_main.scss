@@ -1,9 +1,11 @@
 .is-boxed {
-    background: lighten(desaturate(color(bg, 1), 15%), 2%);
+    background-image: url('/dist/images/teotihuacan.jpg');
+    background-repeat: no-repeat;
 }
 
 .body-wrap {
-    background: color(bg, 1);
+    background: url('/dist/images/teotihuacan.jpg') no-repeat;
+    background-size: contain;
     overflow: hidden;
     /* Sticky footer */
     display: flex;

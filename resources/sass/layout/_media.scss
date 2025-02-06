@@ -12,6 +12,12 @@
 .media-canvas {
 	position: relative;
 
+	.meet-img {
+		position: relative;
+		border-radius: 4px;
+		overflow: hidden;
+	}
+
 	svg {
 		position: relative; /* To display the canvas above the illustration */
 		width: 100%;

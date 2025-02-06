@@ -4,6 +4,18 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="In Ear Travel - Your personal audio guide companion for self-guided tours. Explore destinations with custom audio guides created just for you.">
+    <meta name="keywords" content="audio guide, travel app, self touring, travel companion, tourist guide, audio tours">
+    <meta name="author" content="In Ear Travel">
+    <meta property="og:title" content="In Ear Travel App - Self Touring with Audio Guides">
+    <meta property="og:description" content="Tour with audio guides created just for you. Download our app and start exploring.">
+    <meta property="og:image" content="dist/images/featureineartravel.png">
+    <meta property="og:url" content="https://ineartravel.com">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="In Ear Travel App">
+    <meta name="twitter:description" content="Self touring with custom audio guides. Your perfect travel companion.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://ineartravel.com">
     <title>In Ear Travel App</title>
     <link href="https://fonts.googleapis.com/css?family=Heebo:400,500,700|Playfair+Display:700" rel="stylesheet">
     <link rel="stylesheet" href="dist/css/app.css">
@@ -49,7 +61,7 @@
 						<div class="hero-copy">
 	                        <h1 class="hero-title mt-0">Self touring with audio guides</h1>
 	                        <p class="hero-paragraph">Our application allows you to tour with our own audio guides created for you</p>
-	                        <div class="hero-cta"><a class="button button-shadow" href="#">Learn more</a><a class="button button-primary button-shadow" href="#">Download now</a></div>
+	                        <div class="hero-cta"><a class="button button-shadow" href="#features-section">Learn more</a><a class="button button-primary button-shadow" href="https://play.google.com/store/apps/details?id=com.ldkmexico.ineartravel">Download now</a></div>
 						</div>
 						<div class="hero-app">
 							<div class="hero-app-illustration">
@@ -129,10 +141,10 @@
                 </div>
             </section>
 
-            <section class="features section">
+            <section class="features section" id="features-section">
                 <div class="container">
 					<div class="features-inner section-inner has-bottom-divider">
-						<h2 class="section-title mt-0">Bold features</h2>
+						<h2 class="section-title mt-0">Features</h2>
                         <div class="features-wrap">
                             <div class="feature is-revealing">
                                 <div class="feature-inner">
@@ -155,8 +167,8 @@
 										    </g>
 										</svg>
                                     </div>
-                                    <h3 class="feature-title mt-24">Discover</h3>
-                                    <p class="text-sm mb-0">A pseudo-Latin text used in web design, layout, and printing in place of things to emphasise design.</p>
+                                    <h3 class="feature-title mt-24">Offline Mode</h3>
+                                    <p class="text-sm mb-0">No internet? No problem! Download your tours and explore worry-free.</p>
                                 </div>
                             </div>
 							<div class="feature is-revealing">
@@ -180,8 +192,8 @@
 										    </g>
 										</svg>
                                     </div>
-                                    <h3 class="feature-title mt-24">Discover</h3>
-                                    <p class="text-sm mb-0">A pseudo-Latin text used in web design, layout, and printing in place of things to emphasise design.</p>
+                                    <h3 class="feature-title mt-24">Intuitive Playback Controls</h3>
+                                    <p class="text-sm mb-0">Skip, rewind, or speed up the audio to suit your preferences.</p>
                                 </div>
                             </div>
                             <div class="feature is-revealing">
@@ -210,8 +222,8 @@
 										    </g>
 										</svg>
                                     </div>
-                                    <h3 class="feature-title mt-24">Discover</h3>
-                                    <p class="text-sm mb-0">A pseudo-Latin text used in web design, layout, and printing in place of things to emphasise design.</p>
+                                    <h3 class="feature-title mt-24">Expertly Curated Content</h3>
+                                    <p class="text-sm mb-0">Learn fascinating stories, historical insights, and local tips from seasoned guides.</p>
                                 </div>
                             </div>
                             <div class="feature is-revealing">
@@ -235,8 +247,8 @@
 										    </g>
 										</svg>
                                     </div>
-                                    <h3 class="feature-title mt-24">Discover</h3>
-                                    <p class="text-sm mb-0">A pseudo-Latin text used in web design, layout, and printing in place of things to emphasise design.</p>
+                                    <h3 class="feature-title mt-24">Interactive Chapters</h3>
+                                    <p class="text-sm mb-0">Seamlessly navigate through key points of interest without missing a detail.</p>
                                 </div>
                             </div>
 							<div class="feature is-revealing">
@@ -261,8 +273,8 @@
 										    </g>
 										</svg>
                                     </div>
-                                    <h3 class="feature-title mt-24">Discover</h3>
-                                    <p class="text-sm mb-0">A pseudo-Latin text used in web design, layout, and printing in place of things to emphasise design.</p>
+                                    <h3 class="feature-title mt-24">Travel Partner Sharing</h3>
+                                    <p class="text-sm mb-0">Share the app with your travel partner for free and enjoy the experience together.</p>
                                 </div>
                             </div>
                             <div class="feature is-revealing">
@@ -286,8 +298,8 @@
 										    </g>
 										</svg>
                                     </div>
-                                    <h3 class="feature-title mt-24">Discover</h3>
-                                    <p class="text-sm mb-0">A pseudo-Latin text used in web design, layout, and printing in place of things to emphasise design.</p>
+                                    <h3 class="feature-title mt-24">Tailored for You</h3>
+                                    <p class="text-sm mb-0">Adjustable playback speeds and flexible navigation adapt to your unique travel style.</p>
                                 </div>
                             </div>
                         </div>
@@ -299,39 +311,11 @@
                 <div class="container-sm">
                     <div class="media-inner section-inner">
                         <div class="media-header text-center">
-                            <h2 class="section-title mt-0">Meet Laurel</h2>
-                            <p class="section-paragraph mb-0">Lorem ipsum is common placeholder text used to demonstrate the graphic elements of a document or visual presentation.</p>
+                            <h2 class="section-title mt-0">Meet In Ear Travel</h2>
+                            <p class="section-paragraph mb-0">The mobile app that lets you self tour with the best curated content</p>
                         </div>
 						<div class="media-canvas">
-							<svg width="800" height="450" viewBox="0 0 800 450" xmlns="http://www.w3.org/2000/svg">
-							    <defs>
-							        <linearGradient x1="100%" y1="0%" x2="0%" y2="100%" id="media-canvas">
-							            <stop stop-color="#06101F" offset="0%"/>
-							            <stop stop-color="#1D304B" offset="100%"/>
-							        </linearGradient>
-							    </defs>
-							    <rect width="800" height="450" rx="8" fill="url(#media-canvas)" fill-rule="evenodd"/>
-							</svg>
-							<div class="media-control">
-								<svg width="96" height="96" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg">
-								    <defs>
-								        <linearGradient x1="87.565%" y1="15.873%" x2="17.086%" y2="80.538%" id="media-control">
-								            <stop stop-color="#FFF" stop-opacity=".64" offset="0%"/>
-								            <stop stop-color="#FFF" offset="100%"/>
-								        </linearGradient>
-										<filter x="-500%" y="-500%" width="1000%" height="1000%" filterUnits="objectBoundingBox" id="media-shadow">
-                                            <feOffset dy="16" in="SourceAlpha" result="shadowOffsetOuter"></feOffset>
-                                            <feGaussianBlur stdDeviation="24" in="shadowOffsetOuter" result="shadowBlurOuter"></feGaussianBlur>
-                                            <feColorMatrix values="0 0 0 0 0.024 0 0 0 0 0.064 0 0 0 0 0.12 0 0 0 0.24 0" in="shadowBlurOuter"></feColorMatrix>
-                                        </filter>
-								    </defs>
-								    <g fill="none" fill-rule="evenodd">
-								        <circle fill="#FFF" cx="48" cy="48" r="48" style="mix-blend-mode:multiply;filter:url(#media-shadow)"/>
-										<circle fill="url(#media-control)" cx="48" cy="48" r="48"/>
-								        <path d="M44.6 39.2a1.001 1.001 0 0 0-1.6.8v18a1.001 1.001 0 0 0 1.6.8l12-9a.998.998 0 0 0 0-1.6l-12-9z" fill="#1D304B"/>
-								    </g>
-								</svg>
-							</div>
+							<img src={{ mix('dist/images/featureineartravel.png') }} alt="Meet In Ear Travel" class="meet-img">
 						</div>
                     </div>
                 </div>
@@ -341,16 +325,11 @@
                 <div class="container-sm">
                     <div class="newsletter-inner section-inner">
                         <div class="newsletter-header text-center">
-                            <h2 class="section-title mt-0">Stay in the know</h2>
-                            <p class="section-paragraph">Lorem ipsum is common placeholder text used to demonstrate the graphic elements of a document or visual presentation.</p>
+                            <h2 class="section-title mt-0">Download now</h2>
+                            <p class="section-paragraph">Get access to the best audio guides.</p>
                         </div>
-                        <div class="footer-form newsletter-form field field-grouped">
-                            <div class="control control-expanded">
-                                <input class="input" type="email" name="email" placeholder="Your best email&hellip;">
-                            </div>
-                            <div class="control">
-                                <a class="button button-primary button-block button-shadow" href="#">Early access</a>
-                            </div>
+                        <div class="footer-form field text-center">
+                            <a class="button button-primary button-shadow" href="https://play.google.com/store/apps/details?id=com.ldkmexico.ineartravel">Download now</a>
                         </div>
                     </div>
                 </div>
@@ -363,7 +342,7 @@
                     <div class="brand footer-brand">
                         <a href="#">
 							<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-								<title>Laurel</title>
+								<title>In Ear Travel</title>
 								<defs>
 									<linearGradient x1="0%" y1="100%" x2="50%" y2="0%" id="logo-footer-a">
 										<stop stop-color="#F9425F" stop-opacity=".8" offset="0%"/>
@@ -422,7 +401,7 @@
                             </a>
                         </li>
                     </ul>
-                    <div class="footer-copyright">&copy; 2018 Laurel, all rights reserved</div>
+                    <div class="footer-copyright">&copy; 2025 In Ear Travel, all rights reserved</div>
                 </div>
             </div>
         </footer>
