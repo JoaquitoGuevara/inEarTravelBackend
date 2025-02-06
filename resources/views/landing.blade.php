@@ -4,9 +4,9 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Laurel Template</title>
+    <title>In Ear Travel App</title>
     <link href="https://fonts.googleapis.com/css?family=Heebo:400,500,700|Playfair+Display:700" rel="stylesheet">
-    <link rel="stylesheet" href="dist/css/style.css">
+    <link rel="stylesheet" href="dist/css/app.css">
     <script src="https://unpkg.com/scrollreveal@4.0.0/dist/scrollreveal.min.js"></script>
 </head>
 <body class="is-boxed has-animations">
@@ -18,7 +18,7 @@
                         <h1 class="m-0">
                             <a href="#">
 								<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-									<title>Laurel</title>
+									<title>In Ear Travel</title>
 								    <defs>
 								        <linearGradient x1="0%" y1="100%" x2="50%" y2="0%" id="logo-a">
 								            <stop stop-color="#F9425F" stop-opacity=".8" offset="0%"/>
@@ -47,9 +47,9 @@
                 <div class="container">
                     <div class="hero-inner">
 						<div class="hero-copy">
-	                        <h1 class="hero-title mt-0">Landing template for startups</h1>
-	                        <p class="hero-paragraph">Our landing page template works on all devices, so you only have to set it up once, and get beautiful results forever.</p>
-	                        <div class="hero-cta"><a class="button button-shadow" href="#">Learn more</a><a class="button button-primary button-shadow" href="#">Early access</a></div>
+	                        <h1 class="hero-title mt-0">Self touring with audio guides</h1>
+	                        <p class="hero-paragraph">Our application allows you to tour with our own audio guides created for you</p>
+	                        <div class="hero-cta"><a class="button button-shadow" href="#">Learn more</a><a class="button button-primary button-shadow" href="#">Download now</a></div>
 						</div>
 						<div class="hero-app">
 							<div class="hero-app-illustration">
@@ -101,7 +101,7 @@
 								    </g>
 								</svg>
 							</div>
-							<img class="device-mockup" src="dist/images/iphone-mockup.png" alt="App preview">
+							<img class="device-mockup" src="{{ mix('dist/images/iphone-mockup.png') }}" alt="App preview">
                             <div class="hero-app-dots hero-app-dots-1">
 								<svg width="124" height="75" xmlns="http://www.w3.org/2000/svg">
 								    <g fill="none" fill-rule="evenodd">
