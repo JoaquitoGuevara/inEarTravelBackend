@@ -8,3 +8,4 @@ Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 've
     ->name('email.verify');
 
 Route::view('/', 'landing');
+Route::redirect('/download', 'https://play.google.com/store/apps/details?id=com.ldkmexico.ineartravel');
