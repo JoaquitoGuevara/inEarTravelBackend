@@ -148,7 +148,8 @@ class InAppPurchaseController extends Controller
 
         $user = $request->user();
 
-        $product = Product::where('iapProductId', $productId)->first();
+        $safeProductId = preg_match('/^(ldm|ktm)(.*)/', $productId, $matches) ? $matches[2] : $productId;
+        $product = Product::where('iapProductId', $safeProductId)->first();
 
         if (!$product) {
             return response()->json([
