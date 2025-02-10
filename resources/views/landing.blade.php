@@ -316,7 +316,7 @@
                             <p class="section-paragraph mb-0">The mobile app that lets you self tour with the best curated content</p>
                         </div>
 						<div class="media-canvas">
-							<img src={{ mix('dist/images/featureineartravel.png') }} alt="Meet In Ear Travel" class="meet-img">
+							<img src={{ mix('dist/images/featureineartravel.png') }} alt="In Ear Travel feature image" class="meet-img">
 						</div>
                     </div>
                 </div>
