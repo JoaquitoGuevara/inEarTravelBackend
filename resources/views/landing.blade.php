@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="In Ear Travel - Your personal audio guide companion for self-guided tours. Explore destinations with custom audio guides created just for you.">
-    <meta name="keywords" content="audio guide, travel app, self touring, travel companion, tourist guide, audio tours">
+    <meta name="description" content="In Ear Travel - Your personal audio guide app for self-guided tours. Explore destinations like Chichen Itza with custom audio guides. Download our Chichen Itza audio guide and travel audio guides created just for you.">
+    <meta name="keywords" content="audio guide, travel app, self touring, travel companion, tourist guide, audio tours, audio guide app, chichen itza guide, chichen itza audio guide, self-guided tours, travel audio guides">
     <meta name="author" content="In Ear Travel">
     <meta property="og:title" content="In Ear Travel App - Self Touring with Audio Guides">
     <meta property="og:description" content="Tour with audio guides created just for you. Download our app and start exploring.">
