@@ -60,8 +60,10 @@
                 <div class="container">
                     <div class="hero-inner">
 						<div class="hero-copy">
-	                        <h1 class="hero-title mt-0">Touring with Audio Guides – No Human Interaction</h1>
-	                        <p class="hero-paragraph">Explore at your own pace with expertly crafted audio guides—no tour groups, no schedules, and no human interaction required. Just pure discovery on your terms.</p>
+	                        <h1 class="hero-title mt-0">Touring with Audio Guides No Human Interaction</h1>
+	                        <p class="hero-paragraph">Explore at your own pace with expertly crafted audio guides.
+														No tour groups, no schedules, and no human interaction 
+														required. Just pure discovery on your own terms.</p>
 	                        <div class="hero-cta">
 								<a class="button button-shadow" href="#features-section">Learn more</a>
 								<button class="button button-shadow" id="playSampleAudio">
