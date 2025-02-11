@@ -125,6 +125,7 @@ class ProductController extends Controller
             {
                 $ktmAudio = $audio;
                 $ktmAudio['name'] .= ' - KTM';
+                $ktmAudio['id'] = 1000000;
                 $audio['name'] .= ' - LDM';
                 $ktmAudio['pivot']['audioFile'] = "KTM_AUDIO_GUIA_MASTER.mp3";
                 $audios[] = $ktmAudio;
