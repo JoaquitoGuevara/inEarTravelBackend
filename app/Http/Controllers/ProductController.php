@@ -136,9 +136,9 @@ class ProductController extends Controller
         $code = $request->query("code");
 
         if ($code === "KAYTOURSMEXICO")
-            return response()->json(['newPrice' => 1.99, 'newIapProductId' => 'ktmchichenitzaaudioguide']);
+            return response()->json(['newPrice' => 0, 'newIapProductId' => 'ktmchichenitzaaudioguide']);
         else if ($code === "LIVINGDREAMS")
-            return response()->json(['newPrice' => 1.99, 'newIapProductId' => 'ldmchichenitzaaudioguide']);
+            return response()->json(['newPrice' => 0, 'newIapProductId' => 'ldmchichenitzaaudioguide']);
 
         return response()->json([
             'status' => 'error',
