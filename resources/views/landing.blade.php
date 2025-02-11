@@ -64,7 +64,7 @@
 	                        <p class="hero-paragraph">Explore at your own pace with expertly crafted audio guides—no tour groups, no schedules, and no human interaction required. Just pure discovery on your terms.</p>
 	                        <div class="hero-cta">
 								<a class="button button-shadow" href="#features-section">Learn more</a>
-								<button class="button button-shadow" id="playSampleAudio" onclick="playAudio()">
+								<button class="button button-shadow" id="playSampleAudio">
 									<span id="playButtonText">▶ Play Sample</span>
 								</button>
 								<a class="button button-primary button-shadow" href="/download">Download now</a>
