@@ -128,6 +128,36 @@ class ProductController extends Controller
         return response()->json(['audios' => $audios]);
     }
 
+    public function redeemProductWithCode(Request $request, Product $product) {
+        $request->validate([
+            "code" => "required",
+        ]);
+
+        $code = $request->query("code");
+
+        if ($code !== "KAYTOURSMEXICO" || $code !== "LIVINGDREAMS")
+            return response()->json(['message' => 'Invalid code'], 400);
+
+        $user = $request->user();
+
+        $alternativeAudioFile = null;
+
+        if ($code === "LIVINGDREAMS")
+            $alternativeAudioFile = "LDM_AUDIO_GUIA_MASTER.mp3";
+        else if ($code === "KAYTOURSMEXICO")
+            $alternativeAudioFile = "KTM_AUDIO_GUIA_MASTER.mp3";
+
+        $user->products()->syncWithoutDetaching([
+            $product->id => [
+                'audioFile' => $alternativeAudioFile
+            ]
+        ]);
+
+        return response()->json([
+            'message' => 'Your new audio can now be found in the My Audios tab',
+        ]);
+    }
+
     public function validateCoupon(Request $request) {
         $request->validate([
             "code" => "required",
