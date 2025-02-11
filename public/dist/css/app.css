@@ -1313,6 +1313,12 @@ label {
   position: relative; /* To display elements above hero illustrations */
 }
 
+.hero-title {
+  font-size: 30px;
+  line-height: 36px;
+  text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.1);
+}
+
 .hero-paragraph {
   margin-bottom: 32px;
   color: white;
@@ -1362,16 +1368,16 @@ label {
 }
 
 .hero-cta {
-  max-width: 400px;
+  width: 100%;
   margin-left: auto;
   margin-right: auto;
   margin-bottom: 40px;
 }
+.hero-cta .button {
+  max-width: 140px;
+}
 
 @media (max-width: 639px) {
-  .hero-cta .button {
-    display: flex;
-  }
   .hero-cta .button + .button {
     margin-top: 16px;
   }
@@ -1408,7 +1414,8 @@ label {
   }
   .hero-title {
     margin-bottom: 24px;
-    text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.1);
+    font-size: 40px;
+    line-height: 50px;
   }
   .hero-paragraph {
     margin-bottom: 40px;
@@ -1426,9 +1433,6 @@ label {
     margin: 0;
   }
   .hero-cta .button {
-    min-width: 170px;
-  }
-  .hero-cta .button:first-child {
     margin-right: 16px;
   }
 }
@@ -1520,11 +1524,17 @@ label {
 
 .media-canvas {
   position: relative;
+  height: 300px;
 }
 .media-canvas .meet-img {
-  position: relative;
+  position: absolute;
   border-radius: 4px;
   overflow: hidden;
+  bottom: -360px;
+  left: 50%;
+  width: 550px;
+  max-width: initial;
+  transform: translate(-50%, -50%);
 }
 .media-canvas svg {
   position: relative; /* To display the canvas above the illustration */
@@ -1537,7 +1547,7 @@ label {
   width: 320px;
   height: 230px;
   bottom: -76px;
-  left: calc(50% - 160px);
+  left: calc(50% - 167px);
   background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTMwIiBoZWlnaHQ9IjM4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gICAgPGRlZnM+ICAgICAgICA8bGluZWFyR3JhZGllbnQgeDE9IjguNjg1JSIgeTE9IjIzLjczMyUiIHgyPSI4NS44MDglIiB5Mj0iODIuODM3JSIgaWQ9Im1lZGlhLWlsbHVzdHJhdGlvbi1hIj4gICAgICAgICAgICA8c3RvcCBzdG9wLWNvbG9yPSIjRkZGIiBzdG9wLW9wYWNpdHk9Ii40OCIgb2Zmc2V0PSIwJSIvPiAgICAgICAgICAgIDxzdG9wIHN0b3AtY29sb3I9IiNGRkYiIHN0b3Atb3BhY2l0eT0iMCIgb2Zmc2V0PSIxMDAlIi8+ICAgICAgICA8L2xpbmVhckdyYWRpZW50PiAgICAgICAgPGxpbmVhckdyYWRpZW50IHgxPSItNS44ODElIiB5MT0iNDIuNzQzJSIgeDI9IjkyLjgyNyUiIHkyPSIwJSIgaWQ9Im1lZGlhLWlsbHVzdHJhdGlvbi1iIj4gICAgICAgICAgICA8c3RvcCBzdG9wLWNvbG9yPSIjRjk0MjVGIiBvZmZzZXQ9IjAlIi8+ICAgICAgICAgICAgPHN0b3Agc3RvcC1jb2xvcj0iI0Y5N0M1OCIgc3RvcC1vcGFjaXR5PSIwIiBvZmZzZXQ9IjEwMCUiLz4gICAgICAgIDwvbGluZWFyR3JhZGllbnQ+ICAgIDwvZGVmcz4gICAgPGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj4gICAgICAgIDxjaXJjbGUgZmlsbD0idXJsKCNtZWRpYS1pbGx1c3RyYXRpb24tYSkiIGN4PSIyNzYiIGN5PSIxOTAiIHI9IjE5MCIvPiAgICAgICAgPHBhdGggZD0iTTU1MS41MzcgMjM3Ljg1N2MtNzMuNzg3IDYxLjgwMS0xMTcuMTk3IDkwLjY1Ny0xMzAuMjMgODYuNTY5LTE5LjU1Mi02LjEzMyA5LjE0LTE5LjUwNC0xNS4yMDQtNDIuMTc0LTE2LjIyOS0xNS4xMTMtODkuMDI3IDIuMzQyLTIxOC4zOTIgNTIuMzY1QzY0Ljg0NyAzNzMuNTE0IDIuMzA5IDM2MS41MTEuMDk1IDI5OC42MDctMi4xMTggMjM1LjcwNCAzNC4yMTIgMTg1LjE2OCAxMDkuMDg1IDE0N2wzNTMuNjMxIDQuMTY0IDg4LjgyIDY5LjczNnYxNi45NTd6IiBmaWxsPSJ1cmwoI21lZGlhLWlsbHVzdHJhdGlvbi1iKSIvPiAgICAgICAgPHBhdGggZmlsbD0iI0ZGRiIgZD0iTTMwOS4zOTIgMjgzbDMuNjI0IDEuNjY3Ljk4NCAzLjUzLTEuMTU4IDMuMzYtMy40NSAxLjQ0My0zLjI0OS0xLjYzOS0yLjE0My0zLjE2NSAxLjYyLTMuNjc0eiIvPiAgICAgICAgPHBhdGggZmlsbD0iIzU1NkI4QiIgZD0iTTM3MS42OTYgMjkybDEuODEyLjgzMy40OTIgMS43NjUtLjU3OSAxLjY4LTEuNzI1LjcyMi0xLjYyNC0uODItMS4wNzItMS41ODIuODEtMS44Mzd6TTMzNy42OTYgMzU5bDEuODEyLjgzMy40OTIgMS43NjUtLjU3OSAxLjY4LTEuNzI1LjcyMi0xLjYyNC0uODItMS4wNzItMS41ODIuODEtMS44Mzd6Ii8+ICAgICAgICA8cGF0aCBmaWxsPSIjNzQ4N0EzIiBkPSJNMzE1LjMxNCAzMTVsMi44OTkgMS4zMzQuNzg3IDIuODIzLS45MjYgMi42ODgtMi43NiAxLjE1NS0yLjYtMS4zMS0xLjcxNC0yLjUzMyAxLjI5NS0yLjk0ek0zNDYuMzE0IDMyMWwyLjg5OSAxLjMzNC43ODcgMi44MjMtLjkyNiAyLjY4OC0yLjc2IDEuMTU1LTIuNi0xLjMxLTEuNzE0LTIuNTMzIDEuMjk1LTIuOTR6Ii8+ICAgICAgICA8cGF0aCBmaWxsPSIjNTU2QjhCIiBkPSJNMzczLjY5NiAzNjRsMS44MTIuODMzLjQ5MiAxLjc2NS0uNTc5IDEuNjgtMS43MjUuNzIyLTEuNjI0LS44Mi0xLjA3Mi0xLjU4Mi44MS0xLjgzN3pNNDA5LjY5NiAzMjZsMS44MTIuODMzLjQ5MiAxLjc2NS0uNTc5IDEuNjgtMS43MjUuNzIyLTEuNjI0LS44Mi0xLjA3Mi0xLjU4Mi44MS0xLjgzN3pNMzc5LjY5NiAzMjZsMS44MTIuODMzLjQ5MiAxLjc2NS0uNTc5IDEuNjgtMS43MjUuNzIyLTEuNjI0LS44Mi0xLjA3Mi0xLjU4Mi44MS0xLjgzN3pNNDE5LjYxOCAzNDZsMS4wODcuNS4yOTUgMS4wNTktLjM0NyAxLjAwOC0xLjAzNS40MzMtLjk3NS0uNDkyLS42NDMtLjk1LjQ4Ni0xLjEwMXoiLz4gICAgPC9nPjwvc3ZnPg==);
   background-repeat: no-repeat;
   background-size: 320px 230px;
@@ -1563,6 +1573,13 @@ label {
     padding-left: 72px;
     padding-right: 72px;
     margin-bottom: 80px;
+  }
+  .media-canvas {
+    height: 400px;
+  }
+  .media-canvas .meet-img {
+    bottom: -520px;
+    width: 800px;
   }
   .media-canvas::before {
     width: 530px;

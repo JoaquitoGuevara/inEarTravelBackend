@@ -1,4 +1,18 @@
+function playAudio() {
+  var audio = document.getElementById('sampleAudio');
+  var text = document.getElementById('playButtonText');
+  if (audio.paused) {
+    audio.play();
+    text.textContent = '⏸️ Pause Sample';
+  } else {
+    audio.pause();
+    text.textContent = '▶ Play Sample';
+  }
+}
+
 (function () {
+    document.getElementById('playSampleAudio').addEventListener('click', playAudio);
+
     const win = window
     const doc = document.documentElement
   
@@ -23,6 +37,14 @@
         scale: '.95',
         easing: 'cubic-bezier(0.5, -0.01, 0, 1.005)',
         viewFactor: 0.5
+      })
+
+      sr.reveal('.review', {
+        duration: 600,
+        distance: '20px',
+        easing: 'cubic-bezier(0.5, -0.01, 0, 1.005)',
+        origin: 'bottom',
+        interval: 100
       })
     }
   

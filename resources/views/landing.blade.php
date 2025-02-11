@@ -60,9 +60,16 @@
                 <div class="container">
                     <div class="hero-inner">
 						<div class="hero-copy">
-	                        <h1 class="hero-title mt-0">Self touring with audio guides</h1>
-	                        <p class="hero-paragraph">Our application allows you to tour with our own audio guides created for you</p>
-	                        <div class="hero-cta"><a class="button button-shadow" href="#features-section">Learn more</a><a class="button button-primary button-shadow" href="https://play.google.com/store/apps/details?id=com.ldkmexico.ineartravel">Download now</a></div>
+	                        <h1 class="hero-title mt-0">Touring with Audio Guides – No Human Interaction</h1>
+	                        <p class="hero-paragraph">Explore at your own pace with expertly crafted audio guides—no tour groups, no schedules, and no human interaction required. Just pure discovery on your terms.</p>
+	                        <div class="hero-cta">
+								<a class="button button-shadow" href="#features-section">Learn more</a>
+								<button class="button button-shadow" id="playSampleAudio" onclick="playAudio()">
+									<span id="playButtonText">▶ Play Sample</span>
+								</button>
+								<a class="button button-primary button-shadow" href="/download">Download now</a>
+								<audio id="sampleAudio" src="/chichen_itza_sample.mp3"></audio>
+							</div>
 						</div>
 						<div class="hero-app">
 							<div class="hero-app-illustration">
@@ -169,7 +176,7 @@
 										</svg>
                                     </div>
                                     <h3 class="feature-title mt-24">Offline Mode</h3>
-                                    <p class="text-sm mb-0">No internet? No problem! Download your tours and explore worry-free.</p>
+                                    <p class="text-sm mb-0">No internet? No problem! Download your audio guides in advance and enjoy worry-free exploration anywhere.</p>
                                 </div>
                             </div>
 							<div class="feature is-revealing">
@@ -194,7 +201,7 @@
 										</svg>
                                     </div>
                                     <h3 class="feature-title mt-24">Intuitive Playback Controls</h3>
-                                    <p class="text-sm mb-0">Skip, rewind, or speed up the audio to suit your preferences.</p>
+                                    <p class="text-sm mb-0">Easily skip or rewind through chapters to listen at your own pace and never miss a moment.</p>
                                 </div>
                             </div>
                             <div class="feature is-revealing">
@@ -224,7 +231,7 @@
 										</svg>
                                     </div>
                                     <h3 class="feature-title mt-24">Expertly Curated Content</h3>
-                                    <p class="text-sm mb-0">Learn fascinating stories, historical insights, and local tips from seasoned guides.</p>
+                                    <p class="text-sm mb-0">Immerse yourself in captivating stories, historical insights, and local knowledge curated by seasoned guides.</p>
                                 </div>
                             </div>
                             <div class="feature is-revealing">
@@ -249,7 +256,7 @@
 										</svg>
                                     </div>
                                     <h3 class="feature-title mt-24">Interactive Chapters</h3>
-                                    <p class="text-sm mb-0">Seamlessly navigate through key points of interest without missing a detail.</p>
+                                    <p class="text-sm mb-0">Seamlessly navigate through key topics and points of interest with ease, without missing any valuable details.</p>
                                 </div>
                             </div>
 							<div class="feature is-revealing">
@@ -275,7 +282,7 @@
 										</svg>
                                     </div>
                                     <h3 class="feature-title mt-24">Travel Partner Sharing</h3>
-                                    <p class="text-sm mb-0">Share the app with your travel partner for free and enjoy the experience together.</p>
+                                    <p class="text-sm mb-0">Share the app with your travel partner for free and enjoy the immersive experience together.</p>
                                 </div>
                             </div>
                             <div class="feature is-revealing">
@@ -299,14 +306,84 @@
 										    </g>
 										</svg>
                                     </div>
-                                    <h3 class="feature-title mt-24">Tailored for You</h3>
-                                    <p class="text-sm mb-0">Adjustable playback speeds and flexible navigation adapt to your unique travel style.</p>
+                                    <h3 class="feature-title mt-24">Flexible Listening Options</h3>
+                                    <p class="text-sm mb-0">Designed for any setting—enjoy through headphones for a personal journey or play over car speakers while driving to the site.</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
+
+			<section class="reviews section">
+				<div class="container-sm">
+					<div class="reviews-inner section-inner has-bottom-divider">
+						<div class="reviews-header text-center">
+							<h2 class="section-title mt-0">What Our Users Say</h2>
+							<p class="section-paragraph">Real experiences from real travelers</p>
+						</div>
+						<div class="reviews-wrap">
+							<div class="review is-revealing">
+								<div class="review-inner">
+									<div class="review-stars">⭐⭐⭐⭐⭐</div>
+									<h4 class="review-title">Perfect for road trips!</h4>
+									<p class="text-sm">I used this app while driving to Chichen Itza in a big tour bus, and it made the ride fly by! The stories were engaging, and I learned so much before even arriving. Highly recommend for anyone road-tripping in Mexico!</p>
+								</div>
+							</div>
+							<div class="review is-revealing">
+								<div class="review-inner">
+									<div class="review-stars">⭐⭐⭐⭐⭐</div>
+									<h4 class="review-title">Like having a Private Guide in your car</h4>
+									<p class="text-sm">This app is a game-changer! We played it over Bluetooth in our car on our way to Chichen Itza, and it felt like we had a personal guide with us. The explanations were detailed yet easy to follow, making the trip so much more meaningful.</p>
+								</div>
+							</div>
+							<div class="review is-revealing">
+								<div class="review-inner">
+									<div class="review-stars">⭐⭐⭐⭐</div>
+									<h4 class="review-title">Great content, easy to use</h4>
+									<p class="text-sm">The interface is simple, and the audio quality is excellent. I really enjoyed the sections on Mayan history and the Chicxulub crater. Would love to see even more destinations added in the future!</p>
+								</div>
+							</div>
+							<div class="review is-revealing">
+								<div class="review-inner">
+									<div class="review-stars">⭐⭐⭐⭐⭐</div>
+									<h4 class="review-title">Fantastic for families</h4>
+									<p class="text-sm">Our kids (ages 10 and 12) loved listening to the stories about the Mayas and the Spanish conquest. It kept them engaged for the entire drive, which is a huge win for parents!</p>
+								</div>
+							</div>
+							<div class="review is-revealing">
+								<div class="review-inner">
+									<div class="review-stars">⭐⭐⭐⭐</div>
+									<h4 class="review-title">Best audio guide I've used!</h4>
+									<p class="text-sm">I've tried other audio tour apps, but this one stands out because of the depth of information. The interactive chapter navigation made it easy to revisit key parts. Definitely worth it!</p>
+								</div>
+							</div>
+							<div class="review is-revealing">
+								<div class="review-inner">
+									<div class="review-stars">⭐⭐⭐⭐⭐</div>
+									<h4 class="review-title">Super convenient for offline use</h4>
+									<p class="text-sm">I love that I could download everything beforehand and didn't need an internet connection. We listened while walking around the ruins, and it worked perfectly.</p>
+								</div>
+							</div>
+							<div class="review is-revealing">
+								<div class="review-inner">
+									<div class="review-stars">⭐⭐⭐⭐</div>
+									<h4 class="review-title">History buffs will love it!</h4>
+									<p class="text-sm">If you love history, this app is for you. The section on the fall of Tenochtitlan was fascinating. I even re-listened to some parts after the trip on my way back home!</p>
+								</div>
+							</div>
+							<div class="review is-revealing">
+								<div class="review-inner">
+									<div class="review-stars">⭐⭐⭐⭐⭐</div>
+									<h4 class="review-title">Completely transformed our visit to Chichen Itza</h4>
+									<p class="text-sm">Without this app, I wouldn't have appreciated Chichen Itza nearly as much. It gave so much context about the Mayan civilization and their incredible achievements. Can't wait to use it for future trips!</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+    
 
             <section class="media section">
                 <div class="container-sm">
@@ -316,7 +393,7 @@
                             <p class="section-paragraph mb-0">The mobile app that lets you self tour with the best curated content</p>
                         </div>
 						<div class="media-canvas">
-							<img src={{ mix('dist/images/featureineartravel.png') }} alt="In Ear Travel feature image" class="meet-img">
+							<img src={{ mix('dist/images/adaptive-icon.png') }} alt="In Ear Travel feature image" class="meet-img">
 						</div>
                     </div>
                 </div>
@@ -330,7 +407,7 @@
                             <p class="section-paragraph">Get access to the best audio guides.</p>
                         </div>
                         <div class="footer-form field text-center">
-                            <a class="button button-primary button-shadow" href="https://play.google.com/store/apps/details?id=com.ldkmexico.ineartravel">Download now</a>
+                            <a class="button button-primary button-shadow" href="/download">Download now</a>
                         </div>
                     </div>
                 </div>

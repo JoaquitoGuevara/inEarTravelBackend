@@ -8,6 +8,12 @@
     position: relative; /* To display elements above hero illustrations */
 }
 
+.hero-title {
+	font-size: 30px;
+	line-height: 36px;
+	text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.1);
+}
+
 .hero-paragraph {
     margin-bottom: 32px;
 	color: white;
@@ -58,10 +64,14 @@
 }
 
 .hero-cta {
-	max-width: 400px;
+	width: 100%;
 	margin-left: auto;
 	margin-right: auto;
 	margin-bottom: 40px;
+
+	.button {
+		max-width: 140px;
+	}
 }
 
 @include media( '<medium' ) {
@@ -69,8 +79,6 @@
 	.hero-cta {
 
 		.button {
-			display: flex;
-
 			+ .button {
 				margin-top: 16px;
 			}
@@ -116,7 +124,8 @@
 
 	.hero-title {
 		margin-bottom: 24px;
-		text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.1);
+		font-size: 40px;
+		line-height: 50px;
 	}
 
 	.hero-paragraph {
@@ -139,11 +148,7 @@
 		margin: 0;
 
 		.button {
-			min-width: 170px;
-
-			&:first-child {
-				margin-right: 16px;
-			}
+			margin-right: 16px;
 		}
 	}
 }
