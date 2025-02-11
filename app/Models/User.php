@@ -26,6 +26,7 @@ class User extends Authenticatable
         'apple_id',
         'facebook_id',
         'profile_picture',
+        'is_guide',
     ];
 
     /**

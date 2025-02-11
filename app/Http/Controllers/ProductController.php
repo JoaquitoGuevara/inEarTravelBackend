@@ -120,6 +120,16 @@ class ProductController extends Controller
 
         foreach ($audios as &$audio) {
             $audioFile = $audio['pivot']['audioFile'];
+
+            if ($audioFile === "LDM_AUDIO_GUIA_MASTER.mp3")
+            {
+                $ktmAudio = $audio;
+                $ktmAudio['name'] .= ' - KTM';
+                $audio['name'] .= ' - LDM';
+                $ktmAudio['pivot']['audioFile'] = "KTM_AUDIO_GUIA_MASTER.mp3";
+                $audios[] = $ktmAudio;
+            }
+                 
             $audio['timestamps'] = array_values(array_filter($audio['timestamps'], function($timestamp) use ($audioFile) {
                 return $timestamp['forAudioFile'] === $audioFile;
             }));
@@ -140,6 +150,9 @@ class ProductController extends Controller
 
         $user = $request->user();
 
+        if ($user->products()->where('products.id', $product->id)->exists())
+            return response()->json(['message' => 'You already have access to this audio guide'], 400);
+
         $alternativeAudioFile = null;
 
         if ($code === "LIVINGDREAMS")
@@ -147,11 +160,19 @@ class ProductController extends Controller
         else if ($code === "KAYTOURSMEXICO")
             $alternativeAudioFile = "KTM_AUDIO_GUIA_MASTER.mp3";
 
-        $user->products()->syncWithoutDetaching([
-            $product->id => [
-                'audioFile' => $alternativeAudioFile
-            ]
-        ]);
+        if ($user->is_guide) {
+            $user->products()->syncWithoutDetaching([
+                $product->id => [
+                    'audioFile' => 'LDM_AUDIO_GUIA_MASTER.mp3'
+                ]
+            ]);
+        } else {
+            $user->products()->syncWithoutDetaching([
+                $product->id => [
+                    'audioFile' => $alternativeAudioFile
+                ]
+            ]);
+        }
 
         return response()->json([
             'message' => 'Your new audio can now be found in the My Audios tab',
