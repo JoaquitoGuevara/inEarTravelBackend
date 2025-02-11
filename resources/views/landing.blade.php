@@ -390,8 +390,38 @@
                     <div class="media-inner section-inner">
                         <div class="media-header text-center">
                             <h2 class="section-title mt-0">Meet In Ear Travel</h2>
-                            <p class="section-paragraph mb-0">The mobile app that lets you self tour with the best curated content</p>
+							<h3 class="section-subtitle">Turn Your Journey to Chichen Itza into an Unforgettable Experience</h3>
+                            <p class="section-paragraph mb-0">Traveling to Chichen Itza by rental car or bus? Make the most of the usally 3-hour journey (one way) with an immersive audio guide designed to enrich your trip with captivating stories, fascinating history, and cultural insights. This guide is not just about Chichen Itza — it takes you deep into the world of the Mayas, Mexico’s rich heritage, and the dramatic events that shaped the region.</p>
                         </div>
+
+						<div class="features-wrap">
+							<h3 class="section-subtitle">What You'll Discover on Your Way to Chichen Itza:</h3>
+							<div class="feature-content">
+								<p>🔹 <strong>Meet the Mayas</strong> – An introduction to the fascinating civilization that left behind one of the New Seven Wonders of the World.</p>
+								<p>🔹 <strong>Mexican Cuisine & Local Flavors</strong> – From ancient corn to modern-day tacos, uncover the flavors that define Mexico.</p>
+								<p>🔹 <strong>Flora & Fauna of Mexico</strong> – Get to know the unique wildlife and lush landscapes you'll see on your journey.</p>
+								<p>🔹 <strong>Sacred Cenotes & The Chicxulub Crater</strong> – Learn how these natural wonders shaped both history and mythology.</p>
+								<p>🔹 <strong>The Spanish Conquest & The Fall of Tenochtitlán</strong> – The epic stories of Hernán Cortés, Moctezuma, and the clash of civilizations.</p>
+								<p>🔹 <strong>The Birth of Modern Mexico</strong> – How history, culture, and ancient wisdom still influence the country today.</p>
+							</div>
+
+							<div class="feature-highlight mt-32">
+								<p class="section-paragraph">With over 2.5 hours of engaging content, this offline-friendly guide keeps you entertained, informed, and ready to experience Chichen Itza like never before.</p>
+							</div>
+
+							<div class="benefits mt-0">
+								<h3 class="section-subtitle">Why Listen?</h3>
+								<p>✔️ Make the drive or bus ride more enjoyable with fascinating insights.</p>
+								<p>✔️ Gain a deeper understanding of Chichen Itza before you even arrive.</p>
+								<p>✔️ Enjoy an easy-to-follow format with well-researched narration.</p>
+							</div>
+
+							<div class="cta-text mt-32 mb-64">
+								<p class="section-paragraph">🎧 Download the guide now and let the journey begin!</p>
+							</div>
+						</div>
+       
+
 						<div class="media-canvas">
 							<img src={{ mix('dist/images/adaptive-icon.png') }} alt="In Ear Travel feature image" class="meet-img">
 						</div>

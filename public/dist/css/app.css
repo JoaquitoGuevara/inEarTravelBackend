@@ -1519,7 +1519,7 @@ label {
   padding-bottom: 104px;
 }
 .media .section-paragraph {
-  margin-bottom: 48px;
+  margin-bottom: 18px;
 }
 
 .media-canvas {
@@ -1572,7 +1572,6 @@ label {
   .media .section-paragraph {
     padding-left: 72px;
     padding-right: 72px;
-    margin-bottom: 80px;
   }
   .media-canvas {
     height: 400px;
