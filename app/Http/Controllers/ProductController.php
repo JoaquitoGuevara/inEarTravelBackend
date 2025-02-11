@@ -135,7 +135,7 @@ class ProductController extends Controller
 
         $code = $request->query("code");
 
-        if ($code !== "KAYTOURSMEXICO" || $code !== "LIVINGDREAMS")
+        if ($code !== "KAYTOURSMEXICO" && $code !== "LIVINGDREAMS")
             return response()->json(['message' => 'Invalid code'], 400);
 
         $user = $request->user();
