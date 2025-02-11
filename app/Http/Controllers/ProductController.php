@@ -133,7 +133,7 @@ class ProductController extends Controller
             "code" => "required",
         ]);
 
-        $code = $request->query("code");
+        $code = $request->input("code");
 
         if ($code !== "KAYTOURSMEXICO" && $code !== "LIVINGDREAMS")
             return response()->json(['message' => 'Invalid code'], 400);
