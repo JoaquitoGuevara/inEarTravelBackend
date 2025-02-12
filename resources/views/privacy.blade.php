@@ -11,21 +11,22 @@
             max-width: 1000px;
             margin: 0 auto;
             padding: 20px;
-            color: #333;
+            color: white;
+            background-color: #06101f;
         }
         h1 {
-            color: #2c3e50;
+            color:rgb(134, 195, 255);
             text-align: center;
             border-bottom: 2px solid #eee;
             padding-bottom: 10px;
         }
         h2 {
-            color: #34495e;
+            color: rgb(134, 195, 255);
             margin-top: 30px;
         }
         .last-updated {
             text-align: center;
-            color: #666;
+            color: lightgrey;
             font-style: italic;
             margin-bottom: 30px;
         }
@@ -39,7 +40,7 @@
             margin-bottom: 10px;
         }
         .contact {
-            background: #f8f9fa;
+            background:rgb(5, 14, 28);
             padding: 20px;
             border-radius: 5px;
             margin-top: 30px;
@@ -50,7 +51,6 @@
             padding-top: 20px;
             border-top: 1px solid #eee;
             font-size: 0.9em;
-            color: #666;
         }
     </style>
 </head>

@@ -484,6 +484,12 @@
                         <li>
                             <a href="#">Support</a>
                         </li>
+						<li>
+                            <a href="/privacy">Privacy Policy</a>
+                        </li>
+						<li>
+                            <a href="/tos">Terms of Service</a>
+                        </li>
                     </ul>
                     <ul class="footer-social-links list-reset">
                         <li>
