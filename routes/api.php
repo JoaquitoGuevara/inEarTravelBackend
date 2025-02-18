@@ -18,6 +18,7 @@ Route::middleware('auth:sanctum')->group(function() {
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy']);
     Route::get('userdata', [AuthenticatedSessionController::class, 'userdata']);
     Route::post('setExpoPushToken', [AuthenticatedSessionController::class, 'setExpoPushToken']);
+    Route::post('account/delete', [AuthenticatedSessionController::class, 'deleteAccount']);
 
     Route::get('products', [ProductController::class, 'index']);
     Route::get('myAudios/{id}/downloadUrl', [AudioDownloadController::class, 'getPresignedUrlForAudio']);

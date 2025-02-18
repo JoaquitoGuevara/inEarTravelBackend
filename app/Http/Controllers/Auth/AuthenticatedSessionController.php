@@ -69,4 +69,17 @@ class AuthenticatedSessionController extends Controller
 
         return new Response('Logged out successfully');
     }
+
+    /**
+     * Delete the user's account.
+     */
+    public function deleteAccount(Request $request): Response
+    {
+        $user = $request->user();
+        
+        $user->tokens()->delete();
+        $user->delete();
+
+        return new Response('Account deleted successfully');
+    }
 }
