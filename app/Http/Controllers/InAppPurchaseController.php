@@ -260,7 +260,7 @@ class InAppPurchaseController extends Controller
                 error_log($response);
 
                 if ($response['status'] === 0) {
-                    $validatedProductId = $response['receipt']['in_app'][0]['product_id'] ?? null;
+                    $validatedProductId = $response['receipt']['in_app'][count($response['receipt']['in_app']) - 1]['product_id'] ?? null;                
                 } else {
                     return response()->json([
                         'status'  => 'error',
@@ -287,6 +287,7 @@ class InAppPurchaseController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'There is a mismatch between the validated product id and the requested product id',
+                'validatedProductId' => $validatedProductId,
             ], 400);
         }
 
