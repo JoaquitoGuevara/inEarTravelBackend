@@ -62,7 +62,7 @@ class InAppPurchaseController extends Controller
             ], 404);
         }
 
-        $audioFile = $product->pivot->audioFile || null;
+        $audioFile = $product->pivot->audioFile ?: null;
 
         $destinationUser = User::where('email', $destinationEmail)->first();
 
@@ -79,7 +79,6 @@ class InAppPurchaseController extends Controller
                     'audioFile' => $audioFile
                 ]
             ]);
-
             $user->products()->updateExistingPivot($product->id, [
                 'timesShared' => $product->pivot->timesShared + 1
             ]);
