@@ -46,13 +46,17 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'accessToken' => 'required|string',
+            'isLimitedLogin' => 'boolean',
         ]);
 
         $accessToken = $request->input('accessToken');
+        $isLimitedLogin = $request->input('isLimitedLogin', false);
 
         try {
+            $fields = $isLimitedLogin ? 'id,email' : 'id,name,email,picture.type(large)';
+            
             $response = Http::get('https://graph.facebook.com/me', [
-                'fields' => 'id,name,email,picture.type(large)',
+                'fields' => $fields,
                 'access_token' => $accessToken,
             ]);
 
@@ -69,8 +73,8 @@ class RegisteredUserController extends Controller
 
             $email = $facebookData['email'];
             $facebookId = $facebookData['id'];
-            $name = $facebookData['name'];
-            $profilePicture = $facebookData['picture']['data']['url'] ?? null;
+            $name = $isLimitedLogin ? '' : $facebookData['name'];
+            $profilePicture = $isLimitedLogin ? null : ($facebookData['picture']['data']['url'] ?? null);
 
             $user = User::where('email', $email)->first();
 
@@ -88,6 +92,17 @@ class RegisteredUserController extends Controller
                 if (is_null($user->facebook_id)) {
                     $user->update(['facebook_id' => $facebookId]);
                 }
+                
+                if (!$isLimitedLogin && ($name || $profilePicture)) {
+                    $updateData = [];
+                    if ($name && empty($user->name)) 
+                        $updateData['name'] = $name;
+                    if ($profilePicture) 
+                        $updateData['profile_picture'] = $profilePicture;
+                    if (!empty($updateData)) 
+                        $user->update($updateData);
+                        
+                }
             }
 
             return response()->json([
@@ -99,7 +114,6 @@ class RegisteredUserController extends Controller
             return response()->json(['message' => 'Error validating access token or fetching user data'], 500);
         }
     }
-
 
     public function storeAppleUser(Request $request): Response
     {
