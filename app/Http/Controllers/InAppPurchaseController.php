@@ -177,7 +177,7 @@ class InAppPurchaseController extends Controller
         ]);
     }
 
-    private function verifyPurchase(string $packageName, string $productId, string $purchaseToken, string $transactionReceipt) {
+    private function verifyPurchase(string $packageName, string $productId, string|null $purchaseToken, string|null $transactionReceipt) {
         if (!$purchaseToken && !$transactionReceipt) {
             return response()->json([ 
                 'status' => 'error',
@@ -246,15 +246,18 @@ class InAppPurchaseController extends Controller
                     ], $response->status());
                 }
 
-                if (isset($response['status']) && $response['status'] === 21007) 
+                if (isset($response['status']) && $response['status'] === 21007) {
+                    $verifyUrl = $sandboxEndpoint;
                     $response = Http::post($verifyUrl, $postBody);
-
+                }
                 if (!isset($response['status'])) {
                     return response()->json([
                         'status'  => 'error',
                         'message' => 'Malformed response from Apple.',
                     ], 500);
                 }
+
+                error_log($response);
 
                 if ($response['status'] === 0) {
                     $validatedProductId = $response['receipt']['in_app'][0]['product_id'] ?? null;
