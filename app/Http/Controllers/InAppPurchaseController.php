@@ -62,7 +62,7 @@ class InAppPurchaseController extends Controller
             ], 404);
         }
 
-        $audioFile = $product->pivot->audioFile || $product->audioFile;
+        $audioFile = $product->pivot->audioFile || null;
 
         $destinationUser = User::where('email', $destinationEmail)->first();
 
@@ -70,9 +70,8 @@ class InAppPurchaseController extends Controller
             $destinationUserProducts = $destinationUser->products();
             if ($destinationUserProducts->where('products.id', $product->id)->exists()) {
                 return response()->json([
-                    'status' => 'error',
-                    'message' => 'This user already has access to this audio guide',
-                ], 400);
+                    'message' => 'The audio guide was given to the user successfully but the user already had access to it previously',
+                ]);
             }
 
             $destinationUserProducts->syncWithoutDetaching([
