@@ -74,7 +74,7 @@ class RegisteredUserController extends Controller
                 $kid = $header['kid'];
 
                 // Parse JWKS to get an array of public keys
-                $publicKeys = JWK::parseKeySet($jwks);
+                $publicKeys = JWK::parseKeySet($jwks, 'RS256');
                 if (!isset($publicKeys[$kid])) {
                     return response()->json(['message' => 'Public key not found for token'], 401);
                 }
@@ -82,7 +82,8 @@ class RegisteredUserController extends Controller
 
                 // Decode and verify the JWT.
                 // (Optionally, add more validation such as issuer and audience checks.)
-                $decoded = JWT::decode($accessToken, $publicKey, ['RS256']);
+                $headersForDecode = new stdClass();
+                $decoded = JWT::decode($accessToken, $publicKey, $headersForDecode);
                 // Convert the decoded token (an object) to an associative array
                 $facebookData = json_decode(json_encode($decoded), true);
             } else {
