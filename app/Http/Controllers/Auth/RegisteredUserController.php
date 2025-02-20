@@ -53,29 +53,69 @@ class RegisteredUserController extends Controller
         $isLimitedLogin = $request->input('isLimitedLogin', false);
 
         try {
-            $fields = $isLimitedLogin ? 'id,email' : 'id,name,email,picture.type(large)';
-            
-            $response = Http::get('https://graph.facebook.com/me', [
-                'fields' => $fields,
-                'access_token' => $accessToken,
-            ]);
+            if ($isLimitedLogin) {
+                // For limited login, the accessToken is a JWT that we need to verify and decode.
+                $jwksResponse = Http::get('https://www.facebook.com/.well-known/oauth/openid/jwks/');
+                if ($jwksResponse->failed()) {
+                    error_log('Failed to fetch JWKS keys from Facebook');
+                    return response()->json(['message' => 'Failed to verify token'], 401);
+                }
+                $jwks = $jwksResponse->json();
 
-            if ($response->failed()) {
-                error_log('Facebook API request failed: ' . $response->body());
-                return response()->json(['message' => 'Invalid or expired access token'], 401);
+                // Extract the header from the JWT to get the key id (kid)
+                $parts = explode('.', $accessToken);
+                if (count($parts) < 2) {
+                    return response()->json(['message' => 'Invalid token format'], 401);
+                }
+                $header = json_decode(base64_decode(strtr($parts[0], '-_', '+/')), true);
+                if (!isset($header['kid'])) {
+                    return response()->json(['message' => 'Invalid token header'], 401);
+                }
+                $kid = $header['kid'];
+
+                // Parse JWKS to get an array of public keys
+                $publicKeys = JWK::parseKeySet($jwks);
+                if (!isset($publicKeys[$kid])) {
+                    return response()->json(['message' => 'Public key not found for token'], 401);
+                }
+                $publicKey = $publicKeys[$kid];
+
+                // Decode and verify the JWT.
+                // (Optionally, add more validation such as issuer and audience checks.)
+                $decoded = JWT::decode($accessToken, $publicKey, ['RS256']);
+                // Convert the decoded token (an object) to an associative array
+                $facebookData = json_decode(json_encode($decoded), true);
+            } else {
+                // For classic login, use the Graph API
+                $fields = 'id,name,email,picture.type(large)';
+                $response = Http::get('https://graph.facebook.com/me', [
+                    'fields' => $fields,
+                    'access_token' => $accessToken,
+                ]);
+
+                if ($response->failed()) {
+                    error_log('Facebook API request failed: ' . $response->body());
+                    return response()->json(['message' => 'Invalid or expired access token'], 401);
+                }
+                $facebookData = $response->json();
             }
 
-            $facebookData = $response->json();
-
+            // Ensure email is provided
             if (empty($facebookData['email'])) {
                 return response()->json(['message' => 'Email not provided by Facebook'], 401);
             }
 
             $email = $facebookData['email'];
-            $facebookId = $facebookData['id'];
-            $name = $isLimitedLogin ? '' : $facebookData['name'];
+            // For limited login, the user ID is typically in the 'sub' claim; otherwise, it's 'id'
+            $facebookId = $isLimitedLogin ? ($facebookData['sub'] ?? null) : ($facebookData['id'] ?? null);
+            if (!$facebookId) {
+                return response()->json(['message' => 'Facebook ID not found'], 401);
+            }
+            // For limited login, name might not be provided
+            $name = $facebookData['name'] ?? '';
             $profilePicture = $isLimitedLogin ? null : ($facebookData['picture']['data']['url'] ?? null);
 
+            // Look up or create the user
             $user = User::where('email', $email)->first();
 
             if (!$user) {
@@ -84,7 +124,7 @@ class RegisteredUserController extends Controller
                     'email' => $email,
                     'facebook_id' => $facebookId,
                     'profile_picture' => $profilePicture,
-                    'password' => Hash::make(uniqid()), 
+                    'password' => Hash::make(uniqid()),
                 ]);
 
                 event(new Registered($user));
@@ -92,16 +132,17 @@ class RegisteredUserController extends Controller
                 if (is_null($user->facebook_id)) {
                     $user->update(['facebook_id' => $facebookId]);
                 }
-                
                 if (!$isLimitedLogin && ($name || $profilePicture)) {
                     $updateData = [];
-                    if ($name && empty($user->name)) 
+                    if ($name && empty($user->name)) {
                         $updateData['name'] = $name;
-                    if ($profilePicture) 
+                    }
+                    if ($profilePicture) {
                         $updateData['profile_picture'] = $profilePicture;
-                    if (!empty($updateData)) 
+                    }
+                    if (!empty($updateData)) {
                         $user->update($updateData);
-                        
+                    }
                 }
             }
 
@@ -111,6 +152,7 @@ class RegisteredUserController extends Controller
                 'hadPendingSharedAudios' => $this->attachSharedProducts($user),
             ]);
         } catch (\Exception $e) {
+            error_log('Error: ' . $e->getMessage());
             return response()->json(['message' => 'Error validating access token or fetching user data'], 500);
         }
     }
