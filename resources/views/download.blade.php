@@ -22,10 +22,13 @@
             align-items: center;
             min-height: 100vh;
             background-color: #06101F;
+            display: flex;
+            flex-direction: column;
         }
         .download-button {
-            display: inline-block;
+            display: block;
             transition: transform 0.2s ease;
+            margin-bottom: 15px;
         }
         .download-button:hover {
             transform: scale(1.05);
@@ -38,7 +41,10 @@
 </head>
 <body>
     <a href="https://play.google.com/store/apps/details?id=com.ldkmexico.ineartravel" class="download-button" target="_blank">
-        <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Get it on Google Play">
+    </a>
+    <a href="https://apps.apple.com/us/app/in-ear-travel/id6742119522" class="download-button" target="_blank">
+        <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg" alt="Download on the App Store">
     </a>
 </body>
 <script>
@@ -49,7 +55,7 @@
             window.location.href = 'https://play.google.com/store/apps/details?id=com.ldkmexico.ineartravel';
         }
         else if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
-            window.location.href = 'https://apps.apple.com/placeholder-link';
+            window.location.href = 'https://apps.apple.com/us/app/in-ear-travel/id6742119522';
         }
     })();
 </script>
