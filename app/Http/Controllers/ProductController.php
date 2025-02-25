@@ -121,7 +121,7 @@ class ProductController extends Controller
         foreach ($audios as &$audio) {
             $audioFile = $audio['pivot']['audioFile'];
 
-            if ($audioFile === "LDM_AUDIO_GUIA_MASTER.mp3")
+            if ($user->is_guide && $audioFile === "LDM_AUDIO_GUIA_MASTER.mp3")
             {
                 $ktmAudio = $audio;
                 $ktmAudio['name'] .= ' - KTM';
