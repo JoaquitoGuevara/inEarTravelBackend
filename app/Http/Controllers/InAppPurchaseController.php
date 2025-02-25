@@ -26,6 +26,7 @@ class InAppPurchaseController extends Controller
             'productId'     => 'required|string',
             'purchaseToken' => 'string',
             'transactionReceipt' => 'string',
+            'transactionId' => 'integer',
             'destinationEmail' => 'required|email',
         ]);
 
@@ -33,7 +34,9 @@ class InAppPurchaseController extends Controller
         $productId = $request->input('productId');
         $purchaseToken = $request->input('purchaseToken');
         $transactionReceipt = $request->input('transactionReceipt');
+        $transactionId = $request->input('transactionId');
         $destinationEmail = $request->input('destinationEmail');
+
 
         if (!str_starts_with($productId, 'forshare')) {
             return response()->json([
@@ -42,7 +45,7 @@ class InAppPurchaseController extends Controller
             ], 400);
         }
 
-        $verification = $this->verifyPurchase($packageName, $productId, $purchaseToken, $transactionReceipt);
+        $verification = $this->verifyPurchase($packageName, $productId, $purchaseToken, $transactionReceipt, $transactionId);
 
         if ($verification !== true)
             return $verification;
@@ -132,14 +135,16 @@ class InAppPurchaseController extends Controller
             'productId'     => 'required|string',
             'purchaseToken' => 'string',
             'transactionReceipt' => 'string',
+            'transactionId' => 'integer',
         ]);
 
         $packageName = $request->input('packageName');
         $productId = $request->input('productId');
         $purchaseToken = $request->input('purchaseToken');
         $transactionReceipt = $request->input('transactionReceipt');
+        $transactionId = $request->input('transactionId');
 
-        $verification = $this->verifyPurchase($packageName, $productId, $purchaseToken, $transactionReceipt);
+        $verification = $this->verifyPurchase($packageName, $productId, $purchaseToken, $transactionReceipt, $transactionId);
 
         if ($verification !== true)
             return $verification;
@@ -175,7 +180,7 @@ class InAppPurchaseController extends Controller
         ]);
     }
 
-    private function verifyPurchase(string $packageName, string $productId, string|null $purchaseToken, string|null $transactionReceipt) {
+    private function verifyPurchase(string $packageName, string $productId, string|null $purchaseToken, string|null $transactionReceipt, int|null $transactionId) {
         if (!$purchaseToken && !$transactionReceipt) {
             return response()->json([ 
                 'status' => 'error',
@@ -258,7 +263,10 @@ class InAppPurchaseController extends Controller
                 error_log($response);
 
                 if ($response['status'] === 0) {
-                    $validatedProductId = $response['receipt']['in_app'][count($response['receipt']['in_app']) - 1]['product_id'] ?? null;                
+                    if ($transactionId)
+                        $validatedProductId = collect($response['receipt']['in_app'])->firstWhere('transaction_id', $transactionId)['product_id'] ?? null;
+                    else 
+                        $validatedProductId = $response['receipt']['in_app'][count($response['receipt']['in_app']) - 1]['product_id'] ?? null;
                 } else {
                     return response()->json([
                         'status'  => 'error',
