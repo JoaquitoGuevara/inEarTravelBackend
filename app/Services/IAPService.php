@@ -91,6 +91,7 @@ class IAPService
 
                 if ($response['status'] === 0) {
                     Log::info('Apple IAP Verification data:', ['data' => $response]);
+                    $validatedProductId = $productId;
                     //if ($transactionId)
                     //    $validatedProductId = collect($response['receipt']['in_app'])->firstWhere('transaction_id', $transactionId)['product_id'] ?? null;
                     //else 
