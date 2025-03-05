@@ -3,11 +3,42 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Services\IAPService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class AudioDownloadController extends Controller
 {
+    public function getPresignedUrlForAudioForGuest(Request $request, string $id, IAPService $iapService)
+    {
+        $request->validate([
+            'packageName'   => 'required|string',
+            'productId' => 'required|string',
+            'transactionReceipt' => 'string',
+            'transactionId' => 'integer',
+        ]);
+
+        $packageName = $request->input('packageName');
+        $productId = $request->input('productId');
+        $transactionReceipt = $request->input('transactionReceipt');
+        $transactionId = $request->input('transactionId');
+
+        $verification = $iapService->verifyPurchase($packageName, $productId, null, $transactionReceipt, $transactionId);
+
+        if ($verification !== true)
+            return $verification;
+
+        $product = Product::where('iapProductId', $productId)->with('timestamps')->first();
+
+        $audioFile = $product->audioFile;
+
+        $signedUrl = self::generatePresignedUrl($audioFile, 10);
+
+        return response()->json([
+            'signedUrl' => $signedUrl,
+        ]);
+    }
+
     public function getPresignedUrlForAudio(Request $request, string $id)
     {
         $user = $request->user();
