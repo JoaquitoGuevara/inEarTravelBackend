@@ -15,6 +15,7 @@ Route::post('register/facebook', [RegisteredUserController::class, 'storeFaceboo
 Route::post('testemail', [RegisteredUserController::class, 'testEmail']);
 
 Route::get('products', [ProductController::class, 'index']);
+Route::post('guest/myAudios', [ProductController::class, 'getForGuest']);
 
 Route::middleware('auth:sanctum')->group(function() {
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy']);

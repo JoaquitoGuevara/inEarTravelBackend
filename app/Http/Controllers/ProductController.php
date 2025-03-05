@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\PendingShareDestination;
 use App\Models\Product;
 use App\Notifications\AudioSharedWithYouPushNotification;
+use App\Services\IAPService;
 use App\Services\SendGridService;
 use Illuminate\Http\Request;
 use App\Models\User;
@@ -134,6 +135,44 @@ class ProductController extends Controller
             $audio['timestamps'] = array_values(array_filter($audio['timestamps'], function($timestamp) use ($audioFile) {
                 return $timestamp['forAudioFile'] === $audioFile;
             }));
+        }
+
+        return response()->json(['audios' => $audios]);
+    }
+
+    public function getForGuest(Request $request, IAPService $iapService) {
+        $request->validate([
+            'packageName'   => 'required|string',
+            'products'       => 'required|array',
+            'products.*.productId' => 'required|string',
+            'products.*.transactionReceipt' => 'string',
+            'products.*.transactionId' => 'integer',
+        ]);
+
+        $packageName = $request->input('packageName');
+        $products = $request->input('products');
+
+        $audios = [];
+
+        foreach ($products as &$product) {
+            $transactionReceipt = $product['transactionReceipt'];
+            $transactionId = $product['transactionId'];
+            $productId = $product['productId'];
+
+            $verification = $iapService->verifyPurchase($packageName, $productId, null, $transactionReceipt, $transactionId);
+
+            if ($verification !== true)
+                continue;
+
+            $audio = Product::where('iapProductId', $productId)->with('timestamps')->get()->toArray();
+
+            $audioFile = $audio['pivot']['audioFile'];
+                
+            $audio['timestamps'] = array_values(array_filter($audio['timestamps'], function($timestamp) use ($audioFile) {
+                return $timestamp['forAudioFile'] === $audioFile;
+            }));
+
+            $audios[] = $audio;
         }
 
         return response()->json(['audios' => $audios]);
