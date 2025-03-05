@@ -9,6 +9,7 @@ use App\Services\IAPService;
 use App\Services\SendGridService;
 use Illuminate\Http\Request;
 use App\Models\User;
+use Log;
 
 class ProductController extends Controller
 {
@@ -153,14 +154,14 @@ class ProductController extends Controller
         $products = $request->input('products');
 
         $audios = [];
-        error_log($products);
         foreach ($products as &$product) {
-            error_log(json_encode($product));
             $transactionReceipt = $product['transactionReceipt'];
             $transactionId = $product['transactionId'];
             $productId = $product['productId'];
 
             $verification = $iapService->verifyPurchase($packageName, $productId, null, $transactionReceipt, $transactionId);
+
+            Log::info('Verification result: ' . json_encode($verification));
 
             if ($verification !== true)
                 continue;
