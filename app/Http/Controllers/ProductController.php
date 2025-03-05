@@ -110,7 +110,7 @@ class ProductController extends Controller
     public function index()    {
         $products = Product::all();
 
-        return response()->json(['products' => $products]);
+        return response()->json(['products' => $products]);;
     }
 
     public function getForUser(Request $request) {

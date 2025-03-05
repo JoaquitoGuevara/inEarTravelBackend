@@ -14,13 +14,14 @@ Route::post('register/apple', [RegisteredUserController::class, 'storeAppleUser'
 Route::post('register/facebook', [RegisteredUserController::class, 'storeFacebookUser']);
 Route::post('testemail', [RegisteredUserController::class, 'testEmail']);
 
+Route::get('products', [ProductController::class, 'index']);
+
 Route::middleware('auth:sanctum')->group(function() {
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy']);
     Route::get('userdata', [AuthenticatedSessionController::class, 'userdata']);
     Route::post('setExpoPushToken', [AuthenticatedSessionController::class, 'setExpoPushToken']);
     Route::post('account/delete', [AuthenticatedSessionController::class, 'deleteAccount']);
 
-    Route::get('products', [ProductController::class, 'index']);
     Route::get('myAudios/{id}/downloadUrl', [AudioDownloadController::class, 'getPresignedUrlForAudio']);
     Route::get('myAudios/{id}/downloadSampleUrl', [AudioDownloadController::class, 'getPresignedUrlForSampleAudio']);
     Route::get('myAudios', [ProductController::class, 'getForUser']);
