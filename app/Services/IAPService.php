@@ -91,10 +91,10 @@ class IAPService
 
                 if ($response['status'] === 0) {
                     Log::info('Apple IAP Verification data:', ['data' => $response]);
-                    if ($transactionId)
-                        $validatedProductId = collect($response['receipt']['in_app'])->firstWhere('transaction_id', $transactionId)['product_id'] ?? null;
-                    else 
-                        $validatedProductId = $response['receipt']['in_app'][count($response['receipt']['in_app']) - 1]['product_id'] ?? null;
+                    //if ($transactionId)
+                    //    $validatedProductId = collect($response['receipt']['in_app'])->firstWhere('transaction_id', $transactionId)['product_id'] ?? null;
+                    //else 
+                    //    $validatedProductId = $response['receipt']['in_app'][count($response['receipt']['in_app']) - 1]['product_id'] ?? null;
                 } else {
                     return response()->json([
                         'status'  => 'error',
