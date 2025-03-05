@@ -155,6 +155,7 @@ class ProductController extends Controller
         $audios = [];
 
         foreach ($products as &$product) {
+            error_log(json_encode($product));
             $transactionReceipt = $product['transactionReceipt'];
             $transactionId = $product['transactionId'];
             $productId = $product['productId'];
