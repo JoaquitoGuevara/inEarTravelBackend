@@ -168,6 +168,13 @@ class ProductController extends Controller
             $audioFile = $audio->audioFile;
             $audio = $audio->toArray();
 
+            $audio['pivot'] = [
+                'user_id' => -1,
+                'product_id' => $audio['id'],
+                'audioFile' => null,
+                'timesShared' => 0,
+            ];
+
             $audio['timestamps'] = array_values(array_filter($audio['timestamps'], function($timestamp) use ($audioFile) {
                 return $timestamp['forAudioFile'] === $audioFile;
             }));
