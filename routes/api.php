@@ -16,7 +16,7 @@ Route::post('testemail', [RegisteredUserController::class, 'testEmail']);
 
 Route::get('products', [ProductController::class, 'index']);
 Route::post('guest/myAudios', [ProductController::class, 'getForGuest']);
-Route::get('guest/myAudios/{id}/downloadUrl', [AudioDownloadController::class, 'getPresignedUrlForAudioForGuest']);
+Route::post('guest/myAudios/{id}/downloadUrl', [AudioDownloadController::class, 'getPresignedUrlForAudioForGuest']);
 Route::get('myAudios/{id}/downloadSampleUrl', [AudioDownloadController::class, 'getPresignedUrlForSampleAudio']);
 
 Route::middleware('auth:sanctum')->group(function() {
