@@ -164,9 +164,10 @@ class ProductController extends Controller
             if ($verification !== true)
                 continue;
 
-            $audio = Product::where('iapProductId', $productId)->with('timestamps')->first()->toArray();
-            Log:info('Audio: ' . json_encode($audio));
-            $audioFile = $audio['audioFile'];
+            $audio = Product::where('iapProductId', $productId)->with('timestamps')->first();
+            $audioFile = $audio->audioFile;
+            $audio->toArray();
+            
             $audio['timestamps'] = array_values(array_filter($audio['timestamps'], function($timestamp) use ($audioFile) {
                 return $timestamp['forAudioFile'] === $audioFile;
             }));
