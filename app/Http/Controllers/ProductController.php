@@ -180,6 +180,7 @@ class ProductController extends Controller
                 'product_id' => $audio['id'],
                 'audioFile' => $audioFile,
                 'timesShared' => 0,
+                'guestProductId' => $productId,
             ];
 
             $audio['timestamps'] = array_values(array_filter($audio['timestamps'], function($timestamp) use ($audioFile) {
