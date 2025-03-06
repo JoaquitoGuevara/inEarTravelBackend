@@ -32,6 +32,11 @@ class AudioDownloadController extends Controller
 
         $audioFile = $product->audioFile;
 
+        if ($productId === "ldmchichenitzaaudioguide")
+            $audioFile = "LDM_AUDIO_GUIA_MASTER.mp3";
+        else if ($productId === "ktmchichenitzaaudioguide")
+            $audioFile = "KTM_AUDIO_GUIA_MASTER.mp3";
+
         $signedUrl = self::generatePresignedUrl($audioFile, 10);
 
         return response()->json([
