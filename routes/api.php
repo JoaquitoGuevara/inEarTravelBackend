@@ -18,6 +18,7 @@ Route::get('products', [ProductController::class, 'index']);
 Route::post('guest/myAudios', [ProductController::class, 'getForGuest']);
 Route::post('guest/myAudios/{id}/downloadUrl', [AudioDownloadController::class, 'getPresignedUrlForAudioForGuest']);
 Route::get('myAudios/{id}/downloadSampleUrl', [AudioDownloadController::class, 'getPresignedUrlForSampleAudio']);
+Route::get('validate-coupon', [ProductController::class, 'validateCoupon']);
 
 Route::middleware('auth:sanctum')->group(function() {
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy']);
@@ -27,7 +28,6 @@ Route::middleware('auth:sanctum')->group(function() {
 
     Route::get('myAudios/{id}/downloadUrl', [AudioDownloadController::class, 'getPresignedUrlForAudio']);
     Route::get('myAudios', [ProductController::class, 'getForUser']);
-    Route::get('validate-coupon', [ProductController::class, 'validateCoupon']);
     Route::post('product/{product}/share', [ProductController::class, 'share']);
     Route::get('product/{product}/verifyOwnership', [ProductController::class, 'isOwnedByExistingUser']);
     Route::post('product/{product}/redeem', [ProductController::class, 'redeemProductWithCode']);
