@@ -164,7 +164,8 @@ class ProductController extends Controller
             if ($verification !== true)
                 continue;
 
-            $audio = Product::where('iapProductId', $productId)->with('timestamps')->first();
+            $safeProductId = preg_match('/^(ldm|ktm)(.*)/', $productId, $matches) ? $matches[2] : $productId;
+            $audio = Product::where('iapProductId', $safeProductId)->with('timestamps')->first();
             $audioFile = $audio->audioFile;
 
             if ($productId === "ldmchichenitzaaudioguide")
