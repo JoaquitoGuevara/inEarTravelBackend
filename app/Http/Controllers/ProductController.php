@@ -166,12 +166,18 @@ class ProductController extends Controller
 
             $audio = Product::where('iapProductId', $productId)->with('timestamps')->first();
             $audioFile = $audio->audioFile;
+
+            if ($productId === "ldmchichenitzaaudioguide")
+                $audioFile = "LDM_AUDIO_GUIA_MASTER.mp3";
+            else if ($productId === "ktmchichenitzaaudioguide")
+                $audioFile = "KTM_AUDIO_GUIA_MASTER.mp3";
+
             $audio = $audio->toArray();
 
             $audio['pivot'] = [
                 'user_id' => -1,
                 'product_id' => $audio['id'],
-                'audioFile' => null,
+                'audioFile' => $audioFile,
                 'timesShared' => 0,
             ];
 
