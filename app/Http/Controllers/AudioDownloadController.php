@@ -28,7 +28,8 @@ class AudioDownloadController extends Controller
         if ($verification !== true)
             return $verification;
 
-        $product = Product::where('iapProductId', $productId)->with('timestamps')->first();
+        $safeProductId = preg_match('/^(ldm|ktm)(.*)/', $productId, $matches) ? $matches[2] : $productId;
+        $product = Product::where('iapProductId', $safeProductId)->with('timestamps')->first();
 
         $audioFile = $product->audioFile;
 
