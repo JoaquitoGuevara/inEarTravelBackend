@@ -172,6 +172,8 @@ class ProductController extends Controller
                 $audioFile = "LDM_AUDIO_GUIA_MASTER.mp3";
             else if ($productId === "ktmchichenitzaaudioguide")
                 $audioFile = "KTM_AUDIO_GUIA_MASTER.mp3";
+            else 
+                $audioFile = null;
 
             $audio = $audio->toArray();
 
