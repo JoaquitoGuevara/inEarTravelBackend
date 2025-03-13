@@ -21,9 +21,9 @@ class InAppPurchaseController extends Controller
         $request->validate([
             'packageName'   => 'required|string',
             'productId'     => 'required|string',
-            'purchaseToken' => 'string',
-            'transactionReceipt' => 'string',
-            'transactionId' => 'integer',
+            'purchaseToken' => 'string|nullable',
+            'transactionReceipt' => 'string|nullable',
+            'transactionId' => 'integer|nullable',
             'destinationEmail' => 'required|email',
         ]);
 
@@ -130,9 +130,9 @@ class InAppPurchaseController extends Controller
         $request->validate([
             'packageName'   => 'required|string',
             'productId'     => 'required|string',
-            'purchaseToken' => 'string',
-            'transactionReceipt' => 'string',
-            'transactionId' => 'integer',
+            'purchaseToken' => 'string|nullable',
+            'transactionReceipt' => 'string|nullable',
+            'transactionId' => 'integer|nullable',
         ]);
 
         $packageName = $request->input('packageName');
