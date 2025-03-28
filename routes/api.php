@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 
 Route::post('login', [AuthenticatedSessionController::class, 'store']);
+Route::post('account/requestDeletion', [AuthenticatedSessionController::class, 'requestDeletion']);
 Route::post('register', [RegisteredUserController::class, 'store']);
 Route::post('register/google', [RegisteredUserController::class, 'storeGoogleUser']);
 Route::post('register/apple', [RegisteredUserController::class, 'storeAppleUser']);

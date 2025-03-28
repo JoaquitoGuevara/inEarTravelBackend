@@ -11,3 +11,4 @@ Route::view('/', 'landing');
 Route::view('/privacy', 'privacy');
 Route::view('/tos', 'tos');
 Route::view('/download', 'download');
+Route::view('/accountdeletion', 'accountdeletion');

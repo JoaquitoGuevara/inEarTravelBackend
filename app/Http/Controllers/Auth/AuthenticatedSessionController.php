@@ -82,4 +82,30 @@ class AuthenticatedSessionController extends Controller
 
         return new Response('Account deleted successfully');
     }
+
+    public function requestDeletion(Request $request): Response
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return new Response([
+                'message' => 'User not found.',
+            ], 404);
+        }
+        if (!Hash::check($request->password, $user->password)) {
+            return new Response([
+                'message' => 'The provided credentials are incorrect.',
+            ], 401);
+        }
+
+        $user->tokens()->delete();
+        $user->delete();
+
+        return new Response('Account deleted successfully');
+    }
 }
