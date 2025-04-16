@@ -22,4 +22,9 @@ class MapMarker extends Model
     {
         return $this->belongsTo(Product::class);
     }
+
+    public function mapMarkerImages()
+    {
+        return $this->hasMany(MapMarkerImage::class);
+    }
 }
