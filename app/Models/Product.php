@@ -24,4 +24,12 @@ class Product extends Model
     {
         return $this->hasMany(PendingShareDestination::class);
     }
+    
+    /**
+     * Get the map markers for the product.
+     */
+    public function mapMarkers()
+    {
+        return $this->hasMany(MapMarker::class);
+    }
 }
