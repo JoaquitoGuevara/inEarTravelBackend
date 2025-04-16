@@ -118,7 +118,7 @@ class ProductController extends Controller
     public function getForUser(Request $request) {
         $user = $request->user();
 
-        $audios = $user->products()->with('timestamps')->get()->toArray();
+        $audios = $user->products()->with('mapmarkers')->with('timestamps')->get()->toArray();
 
         foreach ($audios as &$audio) {
             $audioFile = $audio['pivot']['audioFile'];
@@ -165,7 +165,7 @@ class ProductController extends Controller
                 continue;
 
             $safeProductId = preg_match('/^(ldm|ktm)(.*)/', $productId, $matches) ? $matches[2] : $productId;
-            $audio = Product::where('iapProductId', $safeProductId)->with('timestamps')->first();
+            $audio = Product::where('iapProductId', $safeProductId)->with('mapmarkers')->with('timestamps')->first();
             $audioFile = $audio->audioFile;
 
             if ($productId === "ldmchichenitzaaudioguide")
