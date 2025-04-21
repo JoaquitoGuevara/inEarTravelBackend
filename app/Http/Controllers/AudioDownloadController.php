@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Services\IAPService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Models\MapMarker;
 
 class AudioDownloadController extends Controller
 {
@@ -37,6 +38,23 @@ class AudioDownloadController extends Controller
             $audioFile = "LDM_AUDIO_GUIA_MASTER.mp3";
         else if ($productId === "ktmchichenitzaaudioguide")
             $audioFile = "KTM_AUDIO_GUIA_MASTER.mp3";
+
+        $signedUrl = self::generatePresignedUrl($audioFile, 10);
+
+        return response()->json([
+            'signedUrl' => $signedUrl,
+        ]);
+    }
+
+    public function getPresignedUrlForMarkerAudio(Request $request, MapMarker $mapmarker) {
+        $user = $request->user();
+
+        $product = $user->products()->where('products.id', $mapmarker->product_id)->first();
+
+        if (!$product) 
+            return response()->json(['error' => 'Unauthorized access to this audio'], 403);
+
+        $audioFile = $mapmarker->audioFile;
 
         $signedUrl = self::generatePresignedUrl($audioFile, 10);
 

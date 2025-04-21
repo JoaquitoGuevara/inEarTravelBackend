@@ -28,6 +28,7 @@ Route::middleware('auth:sanctum')->group(function() {
     Route::post('account/delete', [AuthenticatedSessionController::class, 'deleteAccount']);
 
     Route::get('myAudios/{id}/downloadUrl', [AudioDownloadController::class, 'getPresignedUrlForAudio']);
+    Route::get('myAudios/{mapmarker}/markerDownloadUrl', [AudioDownloadController::class, 'getPresignedUrlForMarkerAudio']);
     Route::get('myAudios', [ProductController::class, 'getForUser']);
     Route::post('product/{product}/share', [ProductController::class, 'share']);
     Route::get('product/{product}/verifyOwnership', [ProductController::class, 'isOwnedByExistingUser']);
