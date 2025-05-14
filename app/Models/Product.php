@@ -8,7 +8,7 @@ class Product extends Model
 {
     protected $fillable = ['name', 'price', 'audioFile', 'photo', 'squarePhoto', 'description', 'iapProductId', 
                             'sampleAudioFile', 'defaultLongitude', 'defaultLatitude', 'defaultLongitudeDelta', 'defaultLatitudeDelta',
-                            'estimatedDuration', 'totalCoveredDistance', 'beforeYouGoText'];
+                            'estimatedDuration', 'totalCoveredDistance', 'beforeYouGoText', 'ratingsAvg'];
 
     protected $hidden = ['audioFile', 'sampleAudioFile'];
 
