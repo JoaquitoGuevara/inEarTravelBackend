@@ -17,6 +17,11 @@ class Product extends Model
         return $this->belongsToMany(User::class, 'product_user')->withPivot('audioFile, timesShared');
     }
 
+    public function usersWhoFavorited()
+    {
+        return $this->belongsToMany(User::class, 'product_favorite_user');
+    }
+
     public function timestamps()
     {
         return $this->hasMany(AudioTimestamp::class);

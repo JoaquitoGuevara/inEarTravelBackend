@@ -57,4 +57,9 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Product::class, 'product_user')->withPivot('audioFile', 'timesShared');
     }
+
+    public function favoriteProducts()
+    {
+        return $this->belongsToMany(Product::class, 'product_favorite_user');
+    }
 }
