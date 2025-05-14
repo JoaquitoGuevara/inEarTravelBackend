@@ -9,6 +9,7 @@ use App\Services\IAPService;
 use App\Services\SendGridService;
 use Illuminate\Http\Request;
 use App\Models\User;
+use Laravel\Sanctum\PersonalAccessToken;
 use Log;
 
 class ProductController extends Controller
@@ -109,9 +110,25 @@ class ProductController extends Controller
         return response()->json(['message' => 'An invitation to sign up has been sent to the email address provided']);
     }   
     
-    public function index()    {
-        $products = Product::with('mapmarkers')->get();
+    public function index(Request $request)    {
+        $token = $request->bearerToken();
+        $accessToken = PersonalAccessToken::findToken($token);
 
+        if ($accessToken) {
+            $id = $accessToken->tokenable->id;
+            $products = Product::with(['mapmarkers', 'usersWhoFavorited' => function($query) use ($id) {
+                $query->select('user_id')->where('user_id', $id);
+            }])->get();
+
+            $products = $products->map(function($product) {
+                $product->is_favorited = $product->usersWhoFavorited->isNotEmpty();
+                unset($product->usersWhoFavorited);
+                return $product;
+            });
+        }
+        else 
+            $products = Product::with('mapmarkers')->get();
+    
         return response()->json(['products' => $products]);
     }
 
@@ -239,7 +256,10 @@ class ProductController extends Controller
     public function addToFavorite(string $id, Request $request) {
         $user = $request->user();
 
-        $user->favoriteProducts()->syncWithoutDetaching([$id]);
+        if ($user->favoriteProducts()->where('product_id', $id)->exists()) 
+            $user->favoriteProducts()->detach($id);
+        else 
+            $user->favoriteProducts()->syncWithoutDetaching([$id]);
 
         return response('');
     }
