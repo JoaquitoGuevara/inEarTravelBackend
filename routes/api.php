@@ -33,6 +33,7 @@ Route::middleware('auth:sanctum')->group(function() {
     Route::post('product/{product}/share', [ProductController::class, 'share']);
     Route::get('product/{product}/verifyOwnership', [ProductController::class, 'isOwnedByExistingUser']);
     Route::post('product/{product}/redeem', [ProductController::class, 'redeemProductWithCode']);
+    Route::post('product/{id}/favorite', [ProductController::class, 'addToFavorite']);
 
     Route::post('verify-iap', [InAppPurchaseController::class, 'verifyIap']);
     Route::post('verify-iap-for-share', [InAppPurchaseController::class, 'verifyIapForShare']);

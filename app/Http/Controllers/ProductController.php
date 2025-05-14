@@ -236,6 +236,14 @@ class ProductController extends Controller
         ]);
     }
 
+    public function addToFavorite(string $id, Request $request) {
+        $user = $request->user();
+
+        $user->favoriteProducts()->syncWithoutDetaching([$id]);
+
+        return response('');
+    }
+
     public function validateCoupon(Request $request) {
         $request->validate([
             "code" => "required",
