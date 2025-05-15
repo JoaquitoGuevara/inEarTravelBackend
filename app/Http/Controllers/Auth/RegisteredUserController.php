@@ -261,6 +261,7 @@ class RegisteredUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'favoritedAsGuest' => ['nullable', 'array'],
         ]);
 
         $user = User::create([
@@ -268,6 +269,9 @@ class RegisteredUserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
+
+        if ($request->favoritedAsGuest) 
+            $user->favoriteProducts()->attach($request->favoritedAsGuest);
 
         event(new RegisteredUser($user));
 
@@ -277,7 +281,6 @@ class RegisteredUserController extends Controller
             'hadPendingSharedAudios' => $this->attachSharedProducts($user),
         ]);
     }
-
     private function attachSharedProducts($user) {
         $pendingShares = PendingShareDestination::where('email', $user->email)->get();
         $hadPending = false;
