@@ -47,6 +47,7 @@ class RegisteredUserController extends Controller
         $request->validate([
             'accessToken' => 'required|string',
             'isLimitedLogin' => 'boolean',
+            'favoritedAsGuest' => ['nullable', 'array'],
         ]);
 
         $accessToken = $request->input('accessToken');
@@ -147,6 +148,9 @@ class RegisteredUserController extends Controller
                 }
             }
 
+            if ($request->favoritedAsGuest) 
+                $user->favoriteProducts()->attach($request->favoritedAsGuest);
+
             return response()->json([
                 'token' => $user->createToken($user->email)->plainTextToken,
                 'user' => $user->toArray(),
@@ -163,6 +167,7 @@ class RegisteredUserController extends Controller
         $request->validate([
             'identityToken' => 'required|string',
             'authorizationCode' => 'required|string',
+            'favoritedAsGuest' => ['nullable', 'array'],
         ]);
 
         $identityToken = $request->input('identityToken');
@@ -208,6 +213,9 @@ class RegisteredUserController extends Controller
             }
         }
 
+        if ($request->favoritedAsGuest) 
+            $user->favoriteProducts()->attach($request->favoritedAsGuest);
+
         return new Response([
             'token' => $user->createToken($user->email)->plainTextToken,
             'user' => $user->toArray(),
@@ -218,6 +226,7 @@ class RegisteredUserController extends Controller
     public function storeGoogleUser(Request $request): Response {
         $request->validate([
             'idToken' => 'required|string',
+            'favoritedAsGuest' => ['nullable', 'array'],
         ]);
     
         $response = Http::get('https://oauth2.googleapis.com/tokeninfo', [
@@ -247,6 +256,9 @@ class RegisteredUserController extends Controller
                 $user->update(['google_id' => $googleData['sub']]);
             }
         }
+
+        if ($request->favoritedAsGuest) 
+            $user->favoriteProducts()->attach($request->favoritedAsGuest);
     
         return new Response([
             'token' => $user->createToken($user->email)->plainTextToken,
