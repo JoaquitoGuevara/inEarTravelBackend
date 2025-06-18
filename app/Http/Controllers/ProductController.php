@@ -111,14 +111,28 @@ class ProductController extends Controller
     }   
     
     public function index(Request $request)    {
+        $request->validate([
+            'isFavorites' => 'string'
+        ]);
+
+        $isFavorites = filter_var($request->query('isFavorites'), FILTER_VALIDATE_BOOLEAN);
         $token = $request->bearerToken();
         $accessToken = PersonalAccessToken::findToken($token);
 
         if ($accessToken) {
             $id = $accessToken->tokenable->id;
-            $products = Product::with(['mapmarkers', 'usersWhoFavorited' => function($query) use ($id) {
+
+            $query = Product::with(['mapmarkers', 'usersWhoFavorited' => function($query) use ($id) {
                 $query->select('user_id')->where('user_id', $id);
-            }])->get();
+            }]);
+            
+            if ($isFavorites) {
+                $query->whereHas('usersWhoFavorited', function($query) use ($id) {
+                    $query->where('user_id', $id);
+                });
+            }
+
+            $products = $query->get();
 
             $products = $products->map(function($product) {
                 $product->is_favorited = $product->usersWhoFavorited->isNotEmpty();
@@ -128,7 +142,7 @@ class ProductController extends Controller
         }
         else 
             $products = Product::with('mapmarkers')->get();
-    
+
         return response()->json(['products' => $products]);
     }
 
