@@ -146,8 +146,8 @@ class ProductController extends Controller
         else {
             $query = Product::with('mapmarkers');
 
-            if ($isFavorites && $favoritedAsGuest !== null) 
-                $query->whereIn('id', $favoritedAsGuest);
+            if ($isFavorites) 
+                $query->whereIn('id', $favoritedAsGuest ?? []);
 
             $products = $query->get();
         }
