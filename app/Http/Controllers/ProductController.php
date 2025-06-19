@@ -112,10 +112,13 @@ class ProductController extends Controller
     
     public function index(Request $request)    {
         $request->validate([
-            'isFavorites' => 'string'
+            'isFavorites' => 'string',
+            'favoritedAsGuest' => 'string|nullable',
         ]);
 
         $isFavorites = filter_var($request->query('isFavorites'), FILTER_VALIDATE_BOOLEAN);
+        $favoritedAsGuest = json_decode($request->query('favoritedAsGuest'), true);
+        
         $token = $request->bearerToken();
         $accessToken = PersonalAccessToken::findToken($token);
 
@@ -127,9 +130,13 @@ class ProductController extends Controller
             }]);
             
             if ($isFavorites) {
-                $query->whereHas('usersWhoFavorited', function($query) use ($id) {
-                    $query->where('user_id', $id);
-                });
+                if ($favoritedAsGuest !== null) 
+                    $query->whereIn('id', $favoritedAsGuest);
+                else {
+                    $query->whereHas('usersWhoFavorited', function($query) use ($id) {
+                        $query->where('user_id', $id);
+                    });
+                }
             }
 
             $products = $query->get();
