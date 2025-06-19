@@ -130,13 +130,9 @@ class ProductController extends Controller
             }]);
             
             if ($isFavorites) {
-                if ($favoritedAsGuest !== null) 
-                    $query->whereIn('id', $favoritedAsGuest);
-                else {
-                    $query->whereHas('usersWhoFavorited', function($query) use ($id) {
-                        $query->where('user_id', $id);
-                    });
-                }
+                $query->whereHas('usersWhoFavorited', function($query) use ($id) {
+                    $query->where('user_id', $id);
+                });
             }
 
             $products = $query->get();
@@ -147,8 +143,14 @@ class ProductController extends Controller
                 return $product;
             });
         }
-        else 
-            $products = Product::with('mapmarkers')->get();
+        else {
+            $query = Product::with('mapmarkers');
+
+            if ($isFavorites && $favoritedAsGuest !== null) 
+                $query->whereIn('id', $favoritedAsGuest);
+
+            $products = $query->get();
+        }
 
         return response()->json(['products' => $products]);
     }
