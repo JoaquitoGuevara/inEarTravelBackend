@@ -37,6 +37,6 @@ class Product extends Model
      */
     public function mapMarkers()
     {
-        return $this->hasMany(MapMarker::class);
+        return $this->hasMany(MapMarker::class)->orderBy('position', 'asc');
     }
 }

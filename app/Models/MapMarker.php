@@ -13,7 +13,8 @@ class MapMarker extends Model
         'latitude',
         'longitude',
         'audioFile',
-        'position'
+        'position',
+        'lineString',
     ];
 
     /**
