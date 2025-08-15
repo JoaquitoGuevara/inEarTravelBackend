@@ -1,6 +1,6 @@
 /* global mapboxgl, MapboxDraw */
 
-import { LINE_COLOR, LINE_POS_CIRCLE_LAYER_ID } from './constants.js';
+import { LINE_COLOR, LINE_POS_CIRCLE_LAYER_ID, PRODUCT_SOURCE_ID } from './constants.js';
 import { setInitialViewportFromStorage, getSavedViewport, saveViewport } from './map-init.js';
 import { createDraw, ensureLinePositionLayer, getDrawInstance } from './draw.js';
 import { getAuthToken, setAuthToken, apiFetch, ensureAuthPermission, attachLogoutHandler, showLoginModal } from './auth.js';
@@ -145,34 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
       map.addSource('product-data', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
     }
 
-    if (!map.getLayer('product-points')) {
-      map.addLayer({
-        id: 'product-points',
-        type: 'circle',
-        source: 'product-data',
-        filter: ['==', ['geometry-type'], 'Point'],
-        paint: {
-          'circle-radius': 6,
-          'circle-color': '#ef4444',
-          'circle-stroke-width': 2,
-          'circle-stroke-color': '#ffffff'
-        }
-      });
-
-      map.on('click', 'product-points', (e) => {
-        const f = e.features && e.features[0];
-        if (!f) return;
-
-        const coords = f.geometry.coordinates.slice();
-        const title = (f.properties && f.properties.title) ? f.properties.title : 'Marker';
-        const desc = (f.properties && f.properties.description) ? f.properties.description : '';
-
-        new mapboxgl.Popup().setLngLat(coords).setHTML(`<strong>${title}</strong><br/>${desc}`).addTo(map);
-      });
-
-      map.on('mouseenter', 'product-points', () => { map.getCanvas().style.cursor = 'pointer'; });
-      map.on('mouseleave', 'product-points', () => { map.getCanvas().style.cursor = ''; });
-    }
+    // We render POIs as DOM markers (draggable) to support editing; no Mapbox point layers here to avoid duplicates.
 
     ensureLinePositionLayer(map, LINE_COLOR);
 

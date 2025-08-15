@@ -30,7 +30,8 @@ export function pointsFcFromMarkers(markers) {
         },
         properties: {
           title: m.title || '',
-          description: m.description || ''
+          description: m.description || '',
+          position: Number.isFinite(Number(m.position)) ? Number(m.position) : null
         }
       });
     }
@@ -56,18 +57,50 @@ export function renderDraggablePoints(map, draw, product) {
 
     if (!Number.isFinite(lng) || !Number.isFinite(lat)) return;
 
-    const el = document.createElement('div');
+  const el = document.createElement('div');
     el.className = 'poi-marker';
     el.style.width = '18px';
     el.style.height = '18px';
     el.style.borderRadius = '50%';
     el.style.background = '#ef4444';
     el.style.border = '2px solid #fff';
+    el.style.position = 'relative';
+  // Ensure the DOM element is displayed as block to avoid sub-pixel drift across zooms
+  el.style.display = 'block';
     el.title = m.title || '';
 
-    const marker = new mapboxgl.Marker({ element: el, draggable: true })
+    // Add small position label inside the marker if available
+    const posNum = Number.isFinite(Number(m.position)) ? Number(m.position) : null;
+    if (posNum !== null) {
+      const lab = document.createElement('span');
+      lab.textContent = String(posNum);
+      lab.style.position = 'absolute';
+      lab.style.top = '50%';
+      lab.style.left = '50%';
+      lab.style.transform = 'translate(-50%, -50%)';
+      lab.style.color = '#ffffff';
+      lab.style.fontSize = '10px';
+      lab.style.fontWeight = '700';
+      lab.style.lineHeight = '10px';
+      lab.style.pointerEvents = 'none';
+      el.appendChild(lab);
+    }
+
+    const marker = new mapboxgl.Marker({ element: el, draggable: true, anchor: 'center' })
       .setLngLat([lng, lat])
       .addTo(map);
+
+    // Click opens a small popup similar to the layer version
+    el.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      const title = m.title || 'Marker';
+      const desc = m.description || '';
+      const ll = marker.getLngLat();
+      new mapboxgl.Popup()
+        .setLngLat([ll.lng, ll.lat])
+        .setHTML(`<strong>${title}</strong><br/>${desc}`)
+        .addTo(map);
+    });
 
   // Persist on drag end
   marker.on('dragend', async () => {
