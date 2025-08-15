@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
         source: PRODUCT_SOURCE_ID,
         filter: ['==', ['geometry-type'], 'Point'],
         paint: {
-      'circle-radius': 10,
+          'circle-radius': 12,
           'circle-color': '#ef4444',
           'circle-stroke-width': 2,
           'circle-stroke-color': '#ffffff'
@@ -189,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ['to-string', ['get', 'position']],
             ''
           ],
-      'text-size': 9,
+          'text-size': 11,
           'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
           'text-allow-overlap': true,
           'text-ignore-placement': true,
