@@ -186,15 +186,132 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize Mapbox
   mapboxgl.accessToken = 'pk.eyJ1Ijoid2VibWFzdGVyZGV2IiwiYSI6ImNtY3YwZmhqcjA1ZzcyaW9iZWdqYWVhbmsifQ.f9xXELkr-1TQIzvH0XPi9g';
 
+  // Use last-session viewport as initial map view if available
+  (function setInitialViewportFromStorage() {
+    try {
+      const raw = localStorage.getItem('poicustomization.viewport');
+
+      let initCenter = [
+        -88.5678,
+        20.6829
+      ];
+      let initZoom = 12;
+
+      if (raw) {
+        const data = JSON.parse(raw);
+        const lng = Number(data && data.lng);
+        const lat = Number(data && data.lat);
+        const zoom = Number(data && data.zoom);
+
+        const lngOk = Number.isFinite(lng) && lng >= -180 && lng <= 180;
+        const latOk = Number.isFinite(lat) && lat >= -90 && lat <= 90;
+        const zoomOk = Number.isFinite(zoom) && zoom >= 1 && zoom <= 22;
+
+        if (lngOk && latOk) {
+          initCenter = [
+            lng,
+            lat
+          ];
+        }
+
+        if (zoomOk) {
+          initZoom = zoom;
+        }
+      }
+
+      // Create map with resolved initial center/zoom
+      window.__poicustomization_initialCenter = initCenter;
+      window.__poicustomization_initialZoom = initZoom;
+    } catch (_) {
+      window.__poicustomization_initialCenter = [
+        -88.5678,
+        20.6829
+      ];
+      window.__poicustomization_initialZoom = 12;
+    }
+  })();
+
   const map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/mapbox/streets-v11',
-    center: [
-      -88.5678,
-      20.6829
-    ],
-    zoom: 12
+    center: window.__poicustomization_initialCenter,
+    zoom: window.__poicustomization_initialZoom
   });
+
+  // Single color used for both lines (Mapbox Draw default) and our position circles
+  const LINE_COLOR = '#3bb2d0';
+
+  // Persisted viewport storage key
+  const VIEWPORT_KEY = 'poicustomization.viewport';
+
+  function saveViewport() {
+    try {
+      const center = map.getCenter();
+      const zoom = map.getZoom();
+
+      const payload = {
+        lng: Number(center.lng),
+        lat: Number(center.lat),
+        zoom: Number(zoom)
+      };
+
+      localStorage.setItem(
+        VIEWPORT_KEY,
+        JSON.stringify(payload)
+      );
+    } catch (_) {
+      // ignore
+    }
+  }
+
+  function getSavedViewport() {
+    try {
+      const raw = localStorage.getItem(VIEWPORT_KEY);
+
+      if (!raw) {
+        return null;
+      }
+
+      const data = JSON.parse(raw);
+
+      const lng = Number(data.lng);
+      const lat = Number(data.lat);
+      const zoom = Number(data.zoom);
+
+      if (!isValidLngLat(lng, lat)) {
+        return null;
+      }
+
+      if (!Number.isFinite(zoom) || zoom < 1 || zoom > 22) {
+        return null;
+      }
+
+      return {
+        lng,
+        lat,
+        zoom
+      };
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function restoreViewportIfSaved() {
+    const vp = getSavedViewport();
+
+    if (!vp) {
+      return;
+    }
+
+    map.flyTo({
+      center: [
+        vp.lng,
+        vp.lat
+      ],
+      zoom: vp.zoom,
+      essential: true
+    });
+  }
 
   map.addControl(
     new mapboxgl.NavigationControl(),
@@ -223,8 +340,26 @@ document.addEventListener('DOMContentLoaded', () => {
   function updateOutput() {
     const data = draw.getAll();
 
+    const features = (data && data.features) ? data.features : [];
+
+    const filtered = features.filter((f) => {
+      const hasMarker = (
+        f &&
+        f.properties &&
+        typeof f.properties.markerId !== 'undefined' &&
+        f.properties.markerId !== null
+      );
+
+      return !hasMarker;
+    });
+
+    const out = {
+      type: 'FeatureCollection',
+      features: filtered
+    };
+
     outputEl.value = JSON.stringify(
-      data,
+      out,
       null,
       2
     );
@@ -274,6 +409,10 @@ document.addEventListener('DOMContentLoaded', () => {
           duration: 600
         }
       );
+
+      map.once('moveend', () => {
+        saveViewport();
+      });
     }
   }
 
@@ -457,14 +596,10 @@ document.addEventListener('DOMContentLoaded', () => {
         type: 'circle',
         source: LINE_POS_SOURCE_ID,
         paint: {
-          'circle-radius': 12,
-          'circle-color': [
-            'case',
-            ['==', ['get', 'linked'], true],
-            '#111827',
-            '#ffffff'
-          ],
-          'circle-stroke-color': '#111827',
+          // Use a single brand color for circles to match line color
+          'circle-radius': 16,
+          'circle-color': LINE_COLOR,
+          'circle-stroke-color': LINE_COLOR,
           'circle-stroke-width': 2
         }
       });
@@ -484,19 +619,23 @@ document.addEventListener('DOMContentLoaded', () => {
         type: 'symbol',
         source: LINE_POS_SOURCE_ID,
         layout: {
-          'text-field': ['to-string', ['coalesce', ['get', 'position'], '']],
+          // Safely render numeric position values; avoid type mismatch with coalesce
+          'text-field': [
+            'case',
+            ['has', 'position'],
+            ['to-string', ['get', 'position']],
+            ''
+          ],
           'text-size': 12,
-          'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+          'text-font': [
+            'Open Sans Bold',
+            'Arial Unicode MS Bold'
+          ],
           'text-allow-overlap': true,
           'text-anchor': 'center'
         },
         paint: {
-          'text-color': [
-            'case',
-            ['==', ['get', 'linked'], true],
-            '#ffffff',
-            '#111827'
-          ]
+          'text-color': '#ffffff'
         }
       });
     }
@@ -551,6 +690,9 @@ document.addEventListener('DOMContentLoaded', () => {
             coordinates: coords
           },
           properties: {
+            // keep metadata so edits can be saved back to DB
+            markerId: m.id,
+            position: Number.isFinite(Number(m.position)) ? Number(m.position) : null,
             title: m.title || '',
             description: m.description || ''
           }
@@ -647,7 +789,8 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             properties: {
               linked: true,
-              position: m.position,
+              // Ensure numeric position present
+              position: Number.isFinite(Number(m.position)) ? Number(m.position) : null,
               markerId: m.id,
               title: m.title || ''
             }
@@ -675,7 +818,9 @@ document.addEventListener('DOMContentLoaded', () => {
         properties: {
           linked: false,
           tempDrawId: f.id || null,
-          tempIndex: idx
+          tempIndex: idx,
+          // Provide a 1-based position number so text renders
+          position: idx + 1
         }
       });
     });
@@ -944,17 +1089,19 @@ document.addEventListener('DOMContentLoaded', () => {
           updated
         );
 
-        renderProduct(updated);
+        renderProduct(updated, { keepViewport: true });
       }
     } catch (err) {
       alert('Failed to save: ' + err.message);
     }
   });
 
-  function renderProduct(product) {
+  function renderProduct(product, options = {}) {
     if (!product) {
       return;
     }
+
+    const keepViewport = options && options.keepViewport === true;
 
     const markers = product.mapmarkers || product.mapMarkers || [];
 
@@ -991,6 +1138,10 @@ document.addEventListener('DOMContentLoaded', () => {
       product,
       tempLinesFc
     );
+
+    if (keepViewport) {
+      return;
+    }
 
     const lng = Number(product.defaultLongitude);
     const lat = Number(product.defaultLatitude);
@@ -1029,6 +1180,10 @@ document.addEventListener('DOMContentLoaded', () => {
           duration: 600
         }
       );
+
+      map.once('moveend', () => {
+        saveViewport();
+      });
     } else if (hasCenter && zoomConfigured !== null) {
       map.flyTo({
         center: [
@@ -1037,6 +1192,10 @@ document.addEventListener('DOMContentLoaded', () => {
         ],
         zoom: zoomConfigured,
         essential: true
+      });
+
+      map.once('moveend', () => {
+        saveViewport();
       });
     } else {
       const allFc = {
@@ -1058,6 +1217,10 @@ document.addEventListener('DOMContentLoaded', () => {
             duration: 600
           }
         );
+
+        map.once('moveend', () => {
+          saveViewport();
+        });
       } else if (hasCenter) {
         map.flyTo({
           center: [
@@ -1067,11 +1230,15 @@ document.addEventListener('DOMContentLoaded', () => {
           zoom: 15,
           essential: true
         });
+
+        map.once('moveend', () => {
+          saveViewport();
+        });
       }
     }
   }
 
-  async function loadProducts() {
+  async function loadProducts(options = {}) {
     const selectEl = document.getElementById('product-select');
 
     try {
@@ -1108,7 +1275,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (selected) {
         selectEl.value = String(selected.id);
-        renderProduct(selected);
+        renderProduct(
+          selected,
+          { keepViewport: options && options.keepViewport === true }
+        );
       } else {
         const opt = document.createElement('option');
         opt.value = '';
@@ -1193,8 +1363,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const ok = await ensureAuthPermission();
 
     if (ok) {
-      loadProducts();
+      const hasVp = !!getSavedViewport();
+      await loadProducts({ keepViewport: hasVp });
+      // When a saved viewport exists, initial render keeps it. No need to re-apply.
     }
+  });
+
+  // Save viewport on interactions
+  map.on('moveend', () => {
+    saveViewport();
   });
 
   map.on('draw.create', () => {
@@ -1223,7 +1400,7 @@ document.addEventListener('DOMContentLoaded', () => {
     );
   });
 
-  map.on('draw.delete', () => {
+  map.on('draw.delete', async (e) => {
     updateOutput();
 
     const current = productsById.get(
@@ -1234,22 +1411,67 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    const tempData = draw.getAll();
+    const deleted = (e && e.features) ? e.features : [];
 
-    const tempLinesFc = {
-      type: 'FeatureCollection',
-      features: (tempData.features || []).filter((f) => {
-        return f.geometry && f.geometry.type === 'LineString';
-      })
-    };
+    const toClear = deleted.filter((f) => {
+      return (
+        f &&
+        f.geometry &&
+        f.geometry.type === 'LineString' &&
+        f.properties &&
+        (typeof f.properties.markerId !== 'undefined' && f.properties.markerId !== null)
+      );
+    });
 
-    refreshLinePositionOverlay(
-      current,
-      tempLinesFc
-    );
+    if (toClear.length === 0) {
+      // just refresh overlay for temp lines
+      const tempData = draw.getAll();
+      const tempLinesFc = {
+        type: 'FeatureCollection',
+        features: (tempData.features || []).filter((f) => {
+          return f.geometry && f.geometry.type === 'LineString';
+        })
+      };
+
+      refreshLinePositionOverlay(
+        current,
+        tempLinesFc
+      );
+      return;
+    }
+
+    try {
+      for (const f of toClear) {
+        const markerId = f.properties.markerId;
+
+        await saveLineToMarker(
+          markerId,
+          []
+        );
+      }
+
+      // After clearing, reload product and re-render to stay in sync
+      const res = await fetch('/api/products');
+      const json = await res.json();
+
+      const updated = (json.products || []).find((p) => {
+        return String(p.id) === String(current.id);
+      });
+
+      if (updated) {
+        productsById.set(
+          String(current.id),
+          updated
+        );
+
+        renderProduct(updated, { keepViewport: true });
+      }
+    } catch (err) {
+      alert('Failed to update deleted line(s): ' + err.message);
+    }
   });
 
-  map.on('draw.update', () => {
+  map.on('draw.update', async (e) => {
     updateOutput();
 
     const current = productsById.get(
@@ -1260,18 +1482,65 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    const tempData = draw.getAll();
+    const changed = (e && e.features) ? e.features : [];
 
-    const tempLinesFc = {
-      type: 'FeatureCollection',
-      features: (tempData.features || []).filter((f) => {
-        return f.geometry && f.geometry.type === 'LineString';
-      })
-    };
+    const toSave = changed.filter((f) => {
+      return (
+        f &&
+        f.geometry &&
+        f.geometry.type === 'LineString' &&
+        f.properties &&
+        (typeof f.properties.markerId !== 'undefined' && f.properties.markerId !== null)
+      );
+    });
 
-    refreshLinePositionOverlay(
-      current,
-      tempLinesFc
-    );
+    // If none of the updated features are linked lines, just refresh overlay for temp lines
+    if (toSave.length === 0) {
+      const tempData = draw.getAll();
+
+      const tempLinesFc = {
+        type: 'FeatureCollection',
+        features: (tempData.features || []).filter((f) => {
+          return f.geometry && f.geometry.type === 'LineString';
+        })
+      };
+
+      refreshLinePositionOverlay(
+        current,
+        tempLinesFc
+      );
+      return;
+    }
+
+    try {
+      for (const f of toSave) {
+        const markerId = f.properties.markerId;
+        const coords = f.geometry.coordinates;
+
+        await saveLineToMarker(
+          markerId,
+          coords
+        );
+      }
+
+      // Reload and re-render once after saves
+      const res = await fetch('/api/products');
+      const json = await res.json();
+
+      const updated = (json.products || []).find((p) => {
+        return String(p.id) === String(current.id);
+      });
+
+      if (updated) {
+        productsById.set(
+          String(current.id),
+          updated
+        );
+
+        renderProduct(updated, { keepViewport: true });
+      }
+    } catch (err) {
+      alert('Failed to save updated line(s): ' + err.message);
+    }
   });
 });
