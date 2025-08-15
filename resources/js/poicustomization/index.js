@@ -1,6 +1,6 @@
 /* global mapboxgl, MapboxDraw */
 
-import { LINE_COLOR, LINE_POS_CIRCLE_LAYER_ID, PRODUCT_SOURCE_ID } from './constants.js';
+import { LINE_COLOR, LINE_POS_CIRCLE_LAYER_ID, PRODUCT_POINT_TEXT_LAYER_ID, PRODUCT_POINT_LAYER_ID, PRODUCT_SOURCE_ID } from './constants.js';
 import { setInitialViewportFromStorage, getSavedViewport, saveViewport } from './map-init.js';
 import { createDraw, ensureLinePositionLayer, getDrawInstance } from './draw.js';
 import { getAuthToken, setAuthToken, apiFetch, ensureAuthPermission, attachLogoutHandler, showLoginModal } from './auth.js';
@@ -145,7 +145,61 @@ document.addEventListener('DOMContentLoaded', () => {
       map.addSource('product-data', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
     }
 
-    // We render POIs as DOM markers (draggable) to support editing; no Mapbox point layers here to avoid duplicates.
+    // Add a stable, map-synced circle layer for POIs
+    if (!map.getLayer(PRODUCT_POINT_LAYER_ID)) {
+      map.addLayer({
+        id: PRODUCT_POINT_LAYER_ID,
+        type: 'circle',
+        source: PRODUCT_SOURCE_ID,
+        filter: ['==', ['geometry-type'], 'Point'],
+        paint: {
+          'circle-radius': 6,
+          'circle-color': '#ef4444',
+          'circle-stroke-width': 2,
+          'circle-stroke-color': '#ffffff'
+        }
+      });
+
+      map.on('click', PRODUCT_POINT_LAYER_ID, (e) => {
+        const f = e.features && e.features[0];
+        if (!f) return;
+
+        const coords = f.geometry.coordinates.slice();
+        const title = (f.properties && f.properties.title) ? f.properties.title : 'Marker';
+        const desc = (f.properties && f.properties.description) ? f.properties.description : '';
+
+        new mapboxgl.Popup().setLngLat(coords).setHTML(`<strong>${title}</strong><br/>${desc}`).addTo(map);
+      });
+
+      map.on('mouseenter', PRODUCT_POINT_LAYER_ID, () => { map.getCanvas().style.cursor = 'pointer'; });
+      map.on('mouseleave', PRODUCT_POINT_LAYER_ID, () => { map.getCanvas().style.cursor = ''; });
+    }
+
+    // Add a text layer to show small position numbers above POIs
+    if (!map.getLayer(PRODUCT_POINT_TEXT_LAYER_ID)) {
+      map.addLayer({
+        id: PRODUCT_POINT_TEXT_LAYER_ID,
+        type: 'symbol',
+        source: PRODUCT_SOURCE_ID,
+        filter: ['==', ['geometry-type'], 'Point'],
+        layout: {
+          'text-field': [
+            'case',
+            ['all', ['has', 'position'], ['!=', ['get', 'position'], null]],
+            ['to-string', ['get', 'position']],
+            ''
+          ],
+          'text-size': 10,
+          'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+          'text-allow-overlap': true,
+          'text-ignore-placement': true,
+          'text-anchor': 'center'
+        },
+        paint: {
+          'text-color': '#ffffff'
+        }
+      });
+    }
 
     ensureLinePositionLayer(map, LINE_COLOR);
 
