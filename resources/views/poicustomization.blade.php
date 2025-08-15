@@ -19,7 +19,10 @@
   <div id="app">
     <div id="map"></div>
     <aside class="panel">
-      <h2 style="margin:0 0 4px 0; font-size:16px;">POI Customization</h2>
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+        <h2 style="margin:0 0 4px 0; font-size:16px;">POI Customization</h2>
+        <button id="logout-btn" class="btn secondary" type="button" style="padding:6px 8px; font-size:12px;">Logout</button>
+      </div>
       <div class="field">
         <label for="product-select" style="font-size:12px; color:#6b7280;">Select product</label>
         <select id="product-select" class="sel">
@@ -54,6 +57,25 @@
       <div class="actions">
         <button id="link-cancel" class="btn secondary" type="button">Cancel</button>
         <button id="link-save" class="btn" type="button">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="login-modal" class="modal-overlay" aria-hidden="true">
+    <div class="modal">
+      <h3>Sign in</h3>
+      <div class="row">
+        <label for="login-email" style="font-size:12px; color:#6b7280;">Email</label>
+        <input id="login-email" type="email" class="sel" placeholder="you@example.com" />
+      </div>
+      <div class="row">
+        <label for="login-password" style="font-size:12px; color:#6b7280;">Password</label>
+        <input id="login-password" type="password" class="sel" placeholder="••••••••" />
+      </div>
+      <div id="login-error" class="error" style="display:none;"></div>
+      <div class="actions">
+        <button id="login-cancel" class="btn secondary" type="button">Cancel</button>
+        <button id="login-submit" class="btn" type="button">Login</button>
       </div>
     </div>
   </div>

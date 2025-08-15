@@ -27,6 +27,7 @@ class User extends Authenticatable
         'facebook_id',
         'profile_picture',
         'is_guide',
+        'hasPoiCustomizationPermission',
     ];
 
     /**
@@ -50,6 +51,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'hasPoiCustomizationPermission' => 'boolean',
         ];
     }
 

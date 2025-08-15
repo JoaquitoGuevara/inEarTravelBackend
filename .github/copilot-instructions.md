@@ -1,1 +1,1 @@
-Avoid one liners and properly format the code and arrays.
+Whenever you write code, avoid one-liners and properly format the code and arrays.
