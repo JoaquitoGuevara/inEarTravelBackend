@@ -126,10 +126,33 @@ export function openLinkModal(productId, lineProps) {
 export async function saveLineToMarker(product, map, mapboxDraw, lineFeature, markerId) {
   if (!markerId) return null;
   const url = `/api/mapmarkers/${markerId}/lineString`;
-  const body = { lineString: JSON.stringify(lineFeature.geometry) };
-  await apiFetch(url, { method: 'POST', body: JSON.stringify(body) });
+  // Normalize to coordinates array, matching usage in draw.update handler
+  let coords = null;
+  if (lineFeature && lineFeature.geometry) {
+    if (lineFeature.geometry.type === 'LineString' && Array.isArray(lineFeature.geometry.coordinates)) {
+      coords = lineFeature.geometry.coordinates;
+    } else if (Array.isArray(lineFeature.geometry)) {
+      coords = lineFeature.geometry;
+    }
+  } else if (Array.isArray(lineFeature)) {
+    coords = lineFeature;
+  }
+
+  const body = { lineString: coords };
+  await apiFetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin', body: JSON.stringify(body) });
   // After saving, reload products to refresh overlay/markers
-  await loadProducts(map, mapboxDraw);
+  await loadProducts(map, renderProductFactory(map, mapboxDraw), { keepViewport: true });
+}
+
+// Clear an existing marker's line
+export async function clearMarkerLine(markerId) {
+  if (!markerId) return;
+  await apiFetch(`/api/mapmarkers/${markerId}/lineString`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'same-origin',
+    body: JSON.stringify({ lineString: null })
+  });
 }
 
 export function linesFcFromMarkers(markers) {

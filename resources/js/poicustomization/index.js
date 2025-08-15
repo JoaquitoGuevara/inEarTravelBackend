@@ -4,7 +4,7 @@ import { LINE_COLOR, LINE_POS_CIRCLE_LAYER_ID } from './constants.js';
 import { setInitialViewportFromStorage, getSavedViewport, saveViewport } from './map-init.js';
 import { createDraw, ensureLinePositionLayer, getDrawInstance } from './draw.js';
 import { getAuthToken, setAuthToken, apiFetch, ensureAuthPermission, attachLogoutHandler, showLoginModal } from './auth.js';
-import { loadProducts, renderProductFactory, refreshLinePositionOverlay, productsById, openLinkModal, saveLineToMarker } from './products.js';
+import { loadProducts, renderProductFactory, refreshLinePositionOverlay, productsById, openLinkModal, saveLineToMarker, clearMarkerLine } from './products.js';
 import { isValidLngLat } from './utils.js';
 
 // Mapbox access token: keep same as original file
@@ -26,6 +26,86 @@ document.addEventListener('DOMContentLoaded', () => {
   );
 
   const draw = createDraw(map);
+  // Provide the legacy/global modal function used by the link flow
+  // Signature: window.openLinkModalForLine(productId, lineProps, resolve)
+  // This shows the #link-modal, populates #marker-select with the product's markers,
+  // and resolves with { markerId } when the user clicks Save (or null on cancel).
+  window.openLinkModalForLine = (productId, lineProps, resolve) => {
+    try {
+      const overlay = document.getElementById('link-modal');
+      const select = document.getElementById('marker-select');
+      const btnSave = document.getElementById('link-save');
+      const btnCancel = document.getElementById('link-cancel');
+
+      // Populate choices from current product: ONLY markers without lineString
+      select.innerHTML = '';
+      const product = productsById.get(String(productId));
+      const markers = (product && (product.mapmarkers || product.mapMarkers)) || [];
+
+      const hasLine = (m) => {
+        const ls = m && m.lineString;
+        if (!ls) return false;
+        if (Array.isArray(ls)) return ls.length >= 2;
+        if (typeof ls === 'string') {
+          const t = ls.trim();
+          if (t === '' || t === '[]') return false;
+          try {
+            const parsed = JSON.parse(t);
+            if (Array.isArray(parsed)) return parsed.length >= 2;
+            if (parsed && parsed.type === 'LineString' && Array.isArray(parsed.coordinates)) return parsed.coordinates.length >= 2;
+            return !!parsed;
+          } catch (_) {
+            return true; // some non-empty string, assume has line
+          }
+        }
+        if (ls && ls.coordinates && Array.isArray(ls.coordinates)) return ls.coordinates.length >= 2;
+        return !!ls;
+      };
+
+      const candidates = markers.filter(m => !hasLine(m));
+
+      candidates.forEach((m) => {
+        const opt = document.createElement('option');
+        opt.value = String(m.id);
+        const pos = Number.isFinite(Number(m.position)) ? Number(m.position) : null;
+        const title = m.title ? m.title : `Marker #${m.id}`;
+        opt.textContent = (pos !== null) ? `${pos} - ${title}` : title;
+        select.appendChild(opt);
+      });
+
+  // Show modal
+  overlay.setAttribute('aria-hidden', 'false');
+  overlay.style.display = 'flex';
+
+      const cleanup = () => {
+        overlay.setAttribute('aria-hidden', 'true');
+        overlay.style.display = 'none';
+      };
+
+      const onCancel = () => {
+        cleanup();
+        if (typeof resolve === 'function') resolve(null);
+      };
+
+      const onSave = () => {
+        const val = select.value;
+        cleanup();
+        if (val) {
+          if (typeof resolve === 'function') resolve({ markerId: Number(val) });
+        } else {
+          if (typeof resolve === 'function') resolve(null);
+        }
+      };
+
+      // Attach one-time listeners
+      btnCancel.addEventListener('click', onCancel, { once: true });
+      btnSave.addEventListener('click', onSave, { once: true });
+    } catch (err) {
+      console.error('Failed to open link modal:', err);
+      if (typeof resolve === 'function') resolve(null);
+    }
+  };
+
 
   const outputEl = document.getElementById('output');
 
@@ -212,7 +292,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const selection = await openLinkModal(current.id, props);
     if (!selection || !selection.markerId) return;
 
-    // Find the line geometry: prefer temp draw feature if present
+  // Find the line geometry: prefer temp draw feature if present
     let lineFeature = null;
     if (props.tempDrawId) {
       const all = draw.getAll();
@@ -233,6 +313,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (!lineFeature) return;
+
+    // If the clicked circle belonged to an already linked marker, clear it (reassigning)
+    if (props.markerId) {
+      try { await clearMarkerLine(props.markerId); } catch (_) {}
+    }
+
+    // Remove temporary draw feature if we created the line via draw
+    if (props.tempDrawId) {
+      try { draw.delete(props.tempDrawId); } catch (_) {}
+    }
 
     await saveLineToMarker(current, map, draw, lineFeature, selection.markerId);
   });
