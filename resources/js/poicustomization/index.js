@@ -147,13 +147,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Add a stable, map-synced circle layer for POIs
     if (!map.getLayer(PRODUCT_POINT_LAYER_ID)) {
-      map.addLayer({
+    map.addLayer({
         id: PRODUCT_POINT_LAYER_ID,
         type: 'circle',
         source: PRODUCT_SOURCE_ID,
         filter: ['==', ['geometry-type'], 'Point'],
         paint: {
-          'circle-radius': 6,
+      'circle-radius': 10,
           'circle-color': '#ef4444',
           'circle-stroke-width': 2,
           'circle-stroke-color': '#ffffff'
@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Add a text layer to show small position numbers above POIs
     if (!map.getLayer(PRODUCT_POINT_TEXT_LAYER_ID)) {
-      map.addLayer({
+    map.addLayer({
         id: PRODUCT_POINT_TEXT_LAYER_ID,
         type: 'symbol',
         source: PRODUCT_SOURCE_ID,
@@ -189,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ['to-string', ['get', 'position']],
             ''
           ],
-          'text-size': 10,
+      'text-size': 9,
           'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
           'text-allow-overlap': true,
           'text-ignore-placement': true,
