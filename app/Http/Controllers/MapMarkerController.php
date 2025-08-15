@@ -9,28 +9,56 @@ class MapMarkerController extends Controller
 {
     public function updateLineString(Request $request, MapMarker $mapmarker)
     {
-        // Accept either an array of [lng, lat] pairs or a JSON string
+        // Accepts: array of [lng, lat] pairs, a JSON string, or null/empty to clear
         $data = $request->input('lineString');
+
+        // Normalize string inputs
         if (is_string($data)) {
-            $decoded = json_decode($data, true);
-            if (json_last_error() === JSON_ERROR_NONE) {
-                $data = $decoded;
+            $trimmed = trim($data);
+
+            if ($trimmed === '' || strtolower($trimmed) === 'null') {
+                $data = null;
+            } else {
+                $decoded = json_decode($trimmed, true);
+
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $data = $decoded;
+                }
             }
         }
 
-        if (!is_array($data) || count($data) < 2) {
-            return response()->json(['message' => 'Invalid lineString. Expect an array of [lng, lat] coordinates.'], 422);
+        // Clear if null or empty array
+        if ($data === null || (is_array($data) && count($data) === 0)) {
+            $mapmarker->lineString = null;
+            $mapmarker->save();
+
+            return response()->json([
+                'status' => 'ok',
+                'mapmarker' => $mapmarker
+            ]);
         }
 
-        // Basic shape validation
+        // Validate a non-empty array of coordinates
+        if (!is_array($data) || count($data) < 2) {
+            return response()->json([
+                'message' => 'Invalid lineString. Expect an array of [lng, lat] coordinates.'
+            ], 422);
+        }
+
         foreach ($data as $pt) {
             if (!is_array($pt) || count($pt) < 2) {
-                return response()->json(['message' => 'Invalid coordinate in lineString.'], 422);
+                return response()->json([
+                    'message' => 'Invalid coordinate in lineString.'
+                ], 422);
             }
+
             $lng = floatval($pt[0]);
             $lat = floatval($pt[1]);
+
             if ($lng < -180 || $lng > 180 || $lat < -90 || $lat > 90) {
-                return response()->json(['message' => 'Coordinate out of range in lineString.'], 422);
+                return response()->json([
+                    'message' => 'Coordinate out of range in lineString.'
+                ], 422);
             }
         }
 

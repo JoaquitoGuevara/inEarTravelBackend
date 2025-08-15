@@ -425,6 +425,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const productsById = new Map();
   let productLineDrawIds = [];
+  const drawIdToMarkerId = new Map();
 
   function isValidLngLat(lng, lat) {
     return (
@@ -783,13 +784,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (mid) {
           features.push({
             type: 'Feature',
-            geometry: {
-              type: 'Point',
-              coordinates: mid
-            },
+            geometry: { type: 'Point', coordinates: mid },
             properties: {
               linked: true,
-              // Ensure numeric position present
               position: Number.isFinite(Number(m.position)) ? Number(m.position) : null,
               markerId: m.id,
               title: m.title || ''
@@ -799,9 +796,14 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
+    // Only add temp overlay points for UNLINKED lines
     (tempLinesFc.features || []).forEach((f, idx) => {
       if (!f || !f.geometry || f.geometry.type !== 'LineString') {
         return;
+      }
+
+      if (f.properties && typeof f.properties.markerId !== 'undefined' && f.properties.markerId !== null) {
+        return; // skip linked lines to avoid duplicate circles
       }
 
       const mid = midpointOfLine(f.geometry.coordinates);
@@ -811,24 +813,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
       features.push({
         type: 'Feature',
-        geometry: {
-          type: 'Point',
-          coordinates: mid
-        },
+        geometry: { type: 'Point', coordinates: mid },
         properties: {
           linked: false,
           tempDrawId: f.id || null,
           tempIndex: idx,
-          // Provide a 1-based position number so text renders
           position: idx + 1
         }
       });
     });
 
-    return {
-      type: 'FeatureCollection',
-      features
-    };
+    return { type: 'FeatureCollection', features };
   }
 
   function refreshLinePositionOverlay(product, tempLinesFc) {
@@ -1008,87 +1003,118 @@ document.addEventListener('DOMContentLoaded', () => {
 
   map.on('click', LINE_POS_CIRCLE_LAYER_ID, async (e) => {
     const f = e.features && e.features[0];
-
     if (!f) {
       return;
     }
 
-    if (f.properties && String(f.properties.linked) === 'true') {
-      return;
-    }
-
-    const current = productsById.get(
-      String(document.getElementById('product-select').value)
-    );
-
+    const current = productsById.get(String(document.getElementById('product-select').value));
     if (!current) {
       return;
     }
 
-    const drawData = draw.getAll();
-
-    if (!drawData || !drawData.features) {
-      return;
-    }
+    const isLinkedCircle = (f.properties && (String(f.properties.linked) === 'true' || f.properties.linked === true));
 
     let targetLine = null;
-    let minDist = Infinity;
+    let prevOwnerMarkerId = null;
 
-    drawData.features.forEach((g) => {
-      if (!g.geometry || g.geometry.type !== 'LineString') {
+    if (isLinkedCircle) {
+      // Allow relinking by clicking the linked circle directly
+      const markerId = f.properties && f.properties.markerId ? f.properties.markerId : null;
+      if (!markerId) {
         return;
       }
 
-      const mid = midpointOfLine(g.geometry.coordinates);
-      if (!mid) {
+      const drawData = draw.getAll();
+      if (!drawData || !drawData.features) {
         return;
       }
 
-      const dx = mid[0] - f.geometry.coordinates[0];
-      const dy = mid[1] - f.geometry.coordinates[1];
-      const d = dx * dx + dy * dy;
+      targetLine = (drawData.features || []).find((g) => {
+        return (
+          g &&
+          g.geometry &&
+          g.geometry.type === 'LineString' &&
+          g.properties &&
+          (String(g.properties.markerId) === String(markerId))
+        );
+      }) || null;
 
-      if (d < minDist) {
-        minDist = d;
-        targetLine = g;
+      prevOwnerMarkerId = markerId;
+    } else {
+      // Unlinked temp circle: find nearest unlinked line
+      const drawData = draw.getAll();
+      if (!drawData || !drawData.features) {
+        return;
       }
-    });
+
+      let minDist = Infinity;
+
+      (drawData.features || []).forEach((g) => {
+        if (!g.geometry || g.geometry.type !== 'LineString') {
+          return;
+        }
+        if (g.properties && typeof g.properties.markerId !== 'undefined' && g.properties.markerId !== null) {
+          return; // skip linked lines here
+        }
+
+        const mid = midpointOfLine(g.geometry.coordinates);
+        if (!mid) {
+          return;
+        }
+
+        const dx = mid[0] - f.geometry.coordinates[0];
+        const dy = mid[1] - f.geometry.coordinates[1];
+        const d = dx * dx + dy * dy;
+
+        if (d < minDist) {
+          minDist = d;
+          targetLine = g;
+        }
+      });
+    }
 
     if (!targetLine) {
       return;
     }
 
     const markerId = await openLinkModal(current.id);
-
     if (!markerId) {
       return;
     }
 
     try {
-      await saveLineToMarker(
-        markerId,
-        targetLine.geometry.coordinates
-      );
-
-      draw.delete(targetLine.id);
-
-      productLineDrawIds = productLineDrawIds.filter((id) => {
-        return id !== targetLine.id;
+      // If the chosen marker already has a line in DB, clear it first
+      const chosenMarker = (current.mapmarkers || current.mapMarkers || []).find((m) => {
+        return String(m.id) === String(markerId);
       });
 
-      const res = await fetch('/api/products');
+      if (chosenMarker && chosenMarker.lineString) {
+        await saveLineToMarker(markerId, null);
+      }
+
+      // If we are moving from a previously linked marker, clear its DB line to avoid duplicates
+      if (prevOwnerMarkerId) {
+        await saveLineToMarker(prevOwnerMarkerId, null);
+      } else {
+        // Also handle case where the target temp line originated from a linked feature we tracked
+        const trackedPrevOwner = drawIdToMarkerId.get(targetLine.id);
+        if (trackedPrevOwner) {
+          await saveLineToMarker(trackedPrevOwner, null);
+        }
+      }
+
+      await saveLineToMarker(markerId, targetLine.geometry.coordinates);
+
+      // Remove the temp/old line from the canvas; renderProduct will redraw the new linked one
+      try { draw.delete(targetLine.id); } catch (_) {}
+      productLineDrawIds = productLineDrawIds.filter((id) => id !== targetLine.id);
+
+      // Reload fresh product data and render, keeping viewport
+      const res = await fetch('/api/products?t=' + Date.now(), { cache: 'no-store' });
       const json = await res.json();
-
-      const updated = (json.products || []).find((p) => {
-        return String(p.id) === String(current.id);
-      });
-
+      const updated = (json.products || []).find((p) => String(p.id) === String(current.id));
       if (updated) {
-        productsById.set(
-          String(current.id),
-          updated
-        );
-
+        productsById.set(String(current.id), updated);
         renderProduct(updated, { keepViewport: true });
       }
     } catch (err) {
@@ -1109,6 +1135,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const pointsFc = pointsFcFromMarkers(markers);
 
     clearProductLinesInDraw();
+    drawIdToMarkerId.clear();
 
     if (existingLinesFc.features.length > 0) {
       const added = draw.add(existingLinesFc);
@@ -1117,6 +1144,23 @@ document.addEventListener('DOMContentLoaded', () => {
       productLineDrawIds.push(
         ...ids
       );
+
+      // Rebuild ownership map: draw feature id -> markerId
+      const currentData = draw.getAll();
+      (currentData.features || []).forEach((f) => {
+        if (
+          f &&
+          f.geometry &&
+          f.geometry.type === 'LineString' &&
+          f.properties &&
+          (typeof f.properties.markerId !== 'undefined' && f.properties.markerId !== null)
+        ) {
+          drawIdToMarkerId.set(
+            f.id,
+            f.properties.markerId
+          );
+        }
+      });
     }
 
     const src = map.getSource(PRODUCT_SOURCE_ID);
@@ -1126,18 +1170,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const tempData = draw.getAll();
-
     const tempLinesFc = {
       type: 'FeatureCollection',
       features: (tempData.features || []).filter((f) => {
-        return f.geometry && f.geometry.type === 'LineString';
+        return (
+          f &&
+          f.geometry &&
+          f.geometry.type === 'LineString' &&
+          !(f.properties && typeof f.properties.markerId !== 'undefined' && f.properties.markerId !== null)
+        );
       })
     };
 
-    refreshLinePositionOverlay(
-      product,
-      tempLinesFc
-    );
+    refreshLinePositionOverlay(product, tempLinesFc);
 
     if (keepViewport) {
       return;
@@ -1242,7 +1287,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectEl = document.getElementById('product-select');
 
     try {
-      const res = await fetch('/api/products');
+      const res = await fetch('/api/products?t=' + Date.now(), { cache: 'no-store' });
       const json = await res.json();
 
       const products = (json && (json.products || json.audios || [])) || [];
@@ -1377,42 +1422,36 @@ document.addEventListener('DOMContentLoaded', () => {
   map.on('draw.create', () => {
     updateOutput();
 
-    const current = productsById.get(
-      String(document.getElementById('product-select').value)
-    );
-
+    const current = productsById.get(String(document.getElementById('product-select').value));
     if (!current) {
       return;
     }
 
     const tempData = draw.getAll();
-
     const tempLinesFc = {
       type: 'FeatureCollection',
       features: (tempData.features || []).filter((f) => {
-        return f.geometry && f.geometry.type === 'LineString';
+        return (
+          f &&
+          f.geometry &&
+          f.geometry.type === 'LineString' &&
+          !(f.properties && typeof f.properties.markerId !== 'undefined' && f.properties.markerId !== null)
+        );
       })
     };
 
-    refreshLinePositionOverlay(
-      current,
-      tempLinesFc
-    );
+    refreshLinePositionOverlay(current, tempLinesFc);
   });
 
   map.on('draw.delete', async (e) => {
     updateOutput();
 
-    const current = productsById.get(
-      String(document.getElementById('product-select').value)
-    );
-
+    const current = productsById.get(String(document.getElementById('product-select').value));
     if (!current) {
       return;
     }
 
     const deleted = (e && e.features) ? e.features : [];
-
     const toClear = deleted.filter((f) => {
       return (
         f &&
@@ -1424,19 +1463,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     if (toClear.length === 0) {
-      // just refresh overlay for temp lines
+      // just refresh overlay for temp lines (unlinked only)
       const tempData = draw.getAll();
       const tempLinesFc = {
         type: 'FeatureCollection',
         features: (tempData.features || []).filter((f) => {
-          return f.geometry && f.geometry.type === 'LineString';
+          return (
+            f &&
+            f.geometry &&
+            f.geometry.type === 'LineString' &&
+            !(f.properties && typeof f.properties.markerId !== 'undefined' && f.properties.markerId !== null)
+          );
         })
       };
 
-      refreshLinePositionOverlay(
-        current,
-        tempLinesFc
-      );
+      refreshLinePositionOverlay(current, tempLinesFc);
       return;
     }
 
@@ -1446,12 +1487,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         await saveLineToMarker(
           markerId,
-          []
+          null
         );
       }
 
       // After clearing, reload product and re-render to stay in sync
-      const res = await fetch('/api/products');
+      const res = await fetch('/api/products?t=' + Date.now(), { cache: 'no-store' });
       const json = await res.json();
 
       const updated = (json.products || []).find((p) => {
@@ -1474,16 +1515,12 @@ document.addEventListener('DOMContentLoaded', () => {
   map.on('draw.update', async (e) => {
     updateOutput();
 
-    const current = productsById.get(
-      String(document.getElementById('product-select').value)
-    );
-
+    const current = productsById.get(String(document.getElementById('product-select').value));
     if (!current) {
       return;
     }
 
     const changed = (e && e.features) ? e.features : [];
-
     const toSave = changed.filter((f) => {
       return (
         f &&
@@ -1494,21 +1531,22 @@ document.addEventListener('DOMContentLoaded', () => {
       );
     });
 
-    // If none of the updated features are linked lines, just refresh overlay for temp lines
     if (toSave.length === 0) {
+      // refresh overlay for unlinked temp lines only
       const tempData = draw.getAll();
-
       const tempLinesFc = {
         type: 'FeatureCollection',
         features: (tempData.features || []).filter((f) => {
-          return f.geometry && f.geometry.type === 'LineString';
+          return (
+            f &&
+            f.geometry &&
+            f.geometry.type === 'LineString' &&
+            !(f.properties && typeof f.properties.markerId !== 'undefined' && f.properties.markerId !== null)
+          );
         })
       };
 
-      refreshLinePositionOverlay(
-        current,
-        tempLinesFc
-      );
+      refreshLinePositionOverlay(current, tempLinesFc);
       return;
     }
 
@@ -1524,7 +1562,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       // Reload and re-render once after saves
-      const res = await fetch('/api/products');
+      const res = await fetch('/api/products?t=' + Date.now(), { cache: 'no-store' });
       const json = await res.json();
 
       const updated = (json.products || []).find((p) => {
