@@ -12,3 +12,4 @@ Route::view('/privacy', 'privacy');
 Route::view('/tos', 'tos');
 Route::view('/download', 'download');
 Route::view('/accountdeletion', 'accountdeletion');
+Route::view('/poicustomization', 'poicustomization');

@@ -6,6 +6,7 @@ use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\MapMarkerController;
 
 Route::post('login', [AuthenticatedSessionController::class, 'store']);
 Route::post('account/requestDeletion', [AuthenticatedSessionController::class, 'requestDeletion']);
@@ -37,4 +38,13 @@ Route::middleware('auth:sanctum')->group(function() {
 
     Route::post('verify-iap', [InAppPurchaseController::class, 'verifyIap']);
     Route::post('verify-iap-for-share', [InAppPurchaseController::class, 'verifyIapForShare']);
+
+    // POI Customization helpers (secured)
+    Route::get('products/{product}/markers-without-lines', function(\App\Models\Product $product) {
+        $markers = $product->mapMarkers()->where(function($q){
+            $q->whereNull('lineString')->orWhere('lineString', '')->orWhere('lineString', '[]');
+        })->orderBy('position')->get(['id','title','position']);
+        return response()->json(['markers' => $markers]);
+    });
+    Route::post('mapmarkers/{mapmarker}/lineString', [MapMarkerController::class, 'updateLineString']);
 });
