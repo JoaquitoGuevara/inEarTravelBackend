@@ -1,10 +1,10 @@
 /* global mapboxgl, MapboxDraw */
 
-import { LINE_COLOR } from './constants.js';
+import { LINE_COLOR, LINE_POS_CIRCLE_LAYER_ID } from './constants.js';
 import { setInitialViewportFromStorage, getSavedViewport, saveViewport } from './map-init.js';
 import { createDraw, ensureLinePositionLayer, getDrawInstance } from './draw.js';
 import { getAuthToken, setAuthToken, apiFetch, ensureAuthPermission, attachLogoutHandler, showLoginModal } from './auth.js';
-import { loadProducts, renderProductFactory } from './products.js';
+import { loadProducts, renderProductFactory, refreshLinePositionOverlay, productsById, openLinkModal, saveLineToMarker } from './products.js';
 import { isValidLngLat } from './utils.js';
 
 // Mapbox access token: keep same as original file
@@ -125,8 +125,12 @@ document.addEventListener('DOMContentLoaded', () => {
       })
     };
 
-    // refresh overlay using same function used in products (kept inline quick)
-    const current = null; // placeholder: actual refresh is handled by products.renderProduct when appropriate
+    // Refresh overlay circles for the currently selected product so newly-drawn lines show empty circles
+    const selectEl = document.getElementById('product-select');
+    const current = selectEl && productsById.get(String(selectEl.value));
+    if (current) {
+      try { refreshLinePositionOverlay(map, current, draw); } catch (_) {}
+    }
   });
 
   map.on('draw.delete', async (e) => {
@@ -193,6 +197,44 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (err) {
       alert('Failed to save updated line(s): ' + err.message);
     }
+  });
+
+  // Click handler for the line position circles: open link modal and save selection
+  map.on('click', LINE_POS_CIRCLE_LAYER_ID, async (e) => {
+    const feat = e.features && e.features[0];
+    if (!feat) return;
+    const props = feat.properties || {};
+
+    const selectEl = document.getElementById('product-select');
+    const current = selectEl && productsById.get(String(selectEl.value));
+    if (!current) return;
+
+    const selection = await openLinkModal(current.id, props);
+    if (!selection || !selection.markerId) return;
+
+    // Find the line geometry: prefer temp draw feature if present
+    let lineFeature = null;
+    if (props.tempDrawId) {
+      const all = draw.getAll();
+      lineFeature = (all.features || []).find(f => String(f.id) === String(props.tempDrawId));
+    }
+
+    if (!lineFeature && props.markerId) {
+      const mm = current.mapmarkers.find(m => String(m.id) === String(props.markerId));
+      if (mm && mm.lineString) {
+        let parsed = null;
+        try { parsed = JSON.parse(mm.lineString); } catch (_) { parsed = mm.lineString; }
+        if (Array.isArray(parsed)) {
+          lineFeature = { geometry: { type: 'LineString', coordinates: parsed } };
+        } else if (parsed && parsed.type === 'LineString') {
+          lineFeature = { geometry: parsed };
+        }
+      }
+    }
+
+    if (!lineFeature) return;
+
+    await saveLineToMarker(current, map, draw, lineFeature, selection.markerId);
   });
 
   // wire simple UI buttons

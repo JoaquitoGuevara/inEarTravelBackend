@@ -71,4 +71,36 @@ class MapMarkerController extends Controller
             'mapmarker' => $mapmarker
         ]);
     }
+
+    /**
+     * Update the stored latitude/longitude for a map marker.
+     * Accepts JSON { latitude: <number|null>, longitude: <number|null> }
+     */
+    public function updatePosition(Request $request, MapMarker $mapmarker)
+    {
+        $lat = $request->input('latitude');
+        $lng = $request->input('longitude');
+
+        // Allow clearing
+        if ($lat === null || $lng === null) {
+            $mapmarker->latitude = null;
+            $mapmarker->longitude = null;
+            $mapmarker->save();
+
+            return response()->json(['status' => 'ok', 'mapmarker' => $mapmarker]);
+        }
+
+        $lat = floatval($lat);
+        $lng = floatval($lng);
+
+        if ($lng < -180 || $lng > 180 || $lat < -90 || $lat > 90) {
+            return response()->json(['message' => 'Invalid coordinates'], 422);
+        }
+
+        $mapmarker->latitude = $lat;
+        $mapmarker->longitude = $lng;
+        $mapmarker->save();
+
+        return response()->json(['status' => 'ok', 'mapmarker' => $mapmarker]);
+    }
 }

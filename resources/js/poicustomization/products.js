@@ -7,7 +7,9 @@ import { saveViewport } from './map-init.js';
 import { clearProductLinesInDraw, pushProductLineIds, rebuildOwnershipMap, setLinePositionData } from './draw.js';
 import { apiFetch } from './auth.js';
 
-const productsById = new Map();
+export const productsById = new Map();
+// Track created Mapbox Marker instances so we can remove them when re-rendering
+const renderedPointMarkers = new Map(); // key: markerId -> mapboxgl.Marker
 
 export function pointsFcFromMarkers(markers) {
   const features = [];
@@ -38,6 +40,96 @@ export function pointsFcFromMarkers(markers) {
     type: 'FeatureCollection',
     features
   };
+}
+
+// Create draggable mapbox markers from map marker records and wire persistence on dragend
+export function renderDraggablePoints(map, draw, product) {
+  // remove any previously rendered markers
+  for (const [k, existing] of renderedPointMarkers.entries()) {
+    try { existing.remove(); } catch (_) {}
+    renderedPointMarkers.delete(k);
+  }
+
+  (product.mapmarkers || []).forEach((m) => {
+    const lng = Number(m.longitude);
+    const lat = Number(m.latitude);
+
+    if (!Number.isFinite(lng) || !Number.isFinite(lat)) return;
+
+    const el = document.createElement('div');
+    el.className = 'poi-marker';
+    el.style.width = '18px';
+    el.style.height = '18px';
+    el.style.borderRadius = '50%';
+    el.style.background = '#ef4444';
+    el.style.border = '2px solid #fff';
+    el.title = m.title || '';
+
+    const marker = new mapboxgl.Marker({ element: el, draggable: true })
+      .setLngLat([lng, lat])
+      .addTo(map);
+
+  // Persist on drag end
+  marker.on('dragend', async () => {
+      try {
+        const ll = marker.getLngLat();
+        await apiFetch(`/api/mapmarkers/${m.id}/position`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin', body: JSON.stringify({ latitude: ll.lat, longitude: ll.lng }) });
+
+  // Refresh product data and overlay positions
+        const res = await fetch('/api/products?t=' + Date.now(), { cache: 'no-store' });
+        const json = await res.json();
+
+        const updated = (json.products || []).find((p) => String(p.id) === String(product.id));
+        if (updated) {
+          productsById.set(String(product.id), updated);
+          // re-render points layer and draggable markers
+          const src = map.getSource(PRODUCT_SOURCE_ID);
+          if (src) src.setData(pointsFcFromMarkers(updated.mapmarkers || []));
+          // also refresh line positions overlay
+          const tempData = (draw && typeof draw.getAll === 'function') ? draw.getAll() : { type: 'FeatureCollection', features: [] };
+          const tempLinesFc = { type: 'FeatureCollection', features: (tempData.features || []).filter((f) => f && f.geometry && f.geometry.type === 'LineString' && !(f.properties && typeof f.properties.markerId !== 'undefined' && f.properties.markerId !== null)) };
+          const posFc = buildLinePositionFeatures(updated, tempLinesFc);
+          setLinePositionData(map, posFc);
+          // remove and recreate draggable markers for fresh positions
+          renderDraggablePoints(map, draw, updated);
+        }
+      } catch (err) {
+        alert('Failed to save marker position: ' + (err && err.message ? err.message : err));
+      }
+    });
+
+    renderedPointMarkers.set(String(m.id), marker);
+  });
+}
+
+// Opens the existing link modal for a product and a line feature props.
+// Keeps this small: returns a promise that resolves when the user confirms a marker selection.
+export function openLinkModal(productId, lineProps) {
+  // The original app used a global UI function to open the modal. We'll try to reuse it if present.
+  // If the app has a function `openLinkModalForLine(productId, lineProps, resolve)` we call it.
+  return new Promise((resolve, reject) => {
+    if (typeof window.openLinkModalForLine === 'function') {
+      try {
+        window.openLinkModalForLine(productId, lineProps, resolve);
+      } catch (err) {
+        reject(err);
+      }
+    } else {
+      // No fallback prompt: if the page doesn't provide the modal hook, resolve null so caller can no-op.
+      console.error('openLinkModalForLine not available on window; cannot open link dialog');
+      resolve(null);
+    }
+  });
+}
+
+// Save line geometry to a marker by calling the server endpoint and refresh product.
+export async function saveLineToMarker(product, map, mapboxDraw, lineFeature, markerId) {
+  if (!markerId) return null;
+  const url = `/api/mapmarkers/${markerId}/lineString`;
+  const body = { lineString: JSON.stringify(lineFeature.geometry) };
+  await apiFetch(url, { method: 'POST', body: JSON.stringify(body) });
+  // After saving, reload products to refresh overlay/markers
+  await loadProducts(map, mapboxDraw);
 }
 
 export function linesFcFromMarkers(markers) {
@@ -166,6 +258,8 @@ export function renderProductFactory(map, draw) {
 
     if (src) {
       src.setData(pointsFc);
+  // also render draggable point markers for customization
+  try { renderDraggablePoints(map, draw, product); } catch (_) {}
     }
 
     const tempData = draw.getAll();
@@ -329,18 +423,38 @@ function buildLinePositionFeatures(product, tempLinesFc) {
       return;
     }
 
-    features.push({
+  features.push({
       type: 'Feature',
       geometry: { type: 'Point', coordinates: mid },
       properties: {
         linked: false,
         tempDrawId: f.id || null,
         tempIndex: idx,
-        position: idx + 1
+    // no position for unlinked temp overlays (show empty circle)
       }
     });
   });
 
   return { type: 'FeatureCollection', features };
+}
+
+// Refresh the line position overlay (circles) for a product using current draw temp lines
+export function refreshLinePositionOverlay(map, product, draw) {
+  try {
+    // Ensure layer exists
+    // draw.js exposes ensureLinePositionLayer via index.js flow, so just build data
+    const tempData = (draw && typeof draw.getAll === 'function') ? draw.getAll() : { type: 'FeatureCollection', features: [] };
+    const tempLinesFc = {
+      type: 'FeatureCollection',
+      features: (tempData.features || []).filter((f) => {
+        return f && f.geometry && f.geometry.type === 'LineString' && !(f.properties && typeof f.properties.markerId !== 'undefined' && f.properties.markerId !== null);
+      })
+    };
+
+    const fc = buildLinePositionFeatures(product, tempLinesFc);
+    setLinePositionData(map, fc);
+  } catch (_) {
+    // ignore
+  }
 }
 

@@ -47,4 +47,6 @@ Route::middleware('auth:sanctum')->group(function() {
         return response()->json(['markers' => $markers]);
     });
     Route::post('mapmarkers/{mapmarker}/lineString', [MapMarkerController::class, 'updateLineString']);
+    // Update a marker's lat/lng (used by POI customization draggable markers)
+    Route::post('mapmarkers/{mapmarker}/position', [MapMarkerController::class, 'updatePosition']);
 });
