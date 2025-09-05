@@ -251,13 +251,14 @@ class ProductController extends Controller
             return response()->json(['message' => 'You already have access to this audio guide'], 400);
 
         $alternativeAudioFile = null;
+        $isChichenItzaOnTheRoad = $product->iapProductId === "chichenitzaaudioguide";
 
-        if ($code === "LIVINGDREAMS")
+        if ($code === "LIVINGDREAMS" && $isChichenItzaOnTheRoad)
             $alternativeAudioFile = "LDM_AUDIO_GUIA_MASTER.mp3";
-        else if ($code === "KAYTOURSMEXICO")
+        else if ($code === "KAYTOURSMEXICO" && $isChichenItzaOnTheRoad)
             $alternativeAudioFile = "KTM_AUDIO_GUIA_MASTER.mp3";
 
-        if ($user->is_guide) {
+        if ($user->is_guide && $isChichenItzaOnTheRoad) {
             $user->products()->syncWithoutDetaching([
                 $product->id => [
                     'audioFile' => 'LDM_AUDIO_GUIA_MASTER.mp3'
