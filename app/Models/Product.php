@@ -6,9 +6,26 @@ use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
-    protected $fillable = ['name', 'price', 'audioFile', 'photo', 'squarePhoto', 'description', 'iapProductId', 
-                            'sampleAudioFile', 'defaultLongitude', 'defaultLatitude', 'defaultLongitudeDelta', 'defaultLatitudeDelta',
-                            'estimatedDuration', 'totalCoveredDistance', 'beforeYouGoText', 'ratingsAvg', 'zoom'];
+    protected $fillable = [
+        'name',
+        'price',
+        'audioFile',
+        'photo',
+        'squarePhoto',
+        'description',
+        'iapProductId',
+        'sampleAudioFile',
+        'defaultLongitude',
+        'defaultLatitude',
+        'defaultLongitudeDelta',
+        'defaultLatitudeDelta',
+        'estimatedDuration',
+        'totalCoveredDistance',
+        'beforeYouGoText',
+        'ratingsAvg',
+        'zoom',
+        'position',
+    ];
 
     protected $hidden = ['audioFile', 'sampleAudioFile'];
 

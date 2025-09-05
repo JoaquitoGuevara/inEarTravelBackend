@@ -127,7 +127,7 @@ class ProductController extends Controller
 
             $query = Product::with(['mapmarkers', 'usersWhoFavorited' => function($query) use ($id) {
                 $query->select('user_id')->where('user_id', $id);
-            }]);
+            }])->orderBy('position');
             
             if ($isFavorites) {
                 $query->whereHas('usersWhoFavorited', function($query) use ($id) {
@@ -144,7 +144,7 @@ class ProductController extends Controller
             });
         }
         else {
-            $query = Product::with('mapmarkers');
+            $query = Product::with('mapmarkers')->orderBy('position');
 
             if ($isFavorites) 
                 $query->whereIn('id', $favoritedAsGuest ?? []);
