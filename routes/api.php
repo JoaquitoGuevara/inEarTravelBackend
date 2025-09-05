@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\MapMarkerController;
+use App\Http\Controllers\DistanceMatrixController;
 
 Route::post('login', [AuthenticatedSessionController::class, 'store']);
 Route::post('account/requestDeletion', [AuthenticatedSessionController::class, 'requestDeletion']);
@@ -21,6 +22,7 @@ Route::post('guest/myAudios', [ProductController::class, 'getForGuest']);
 Route::post('guest/myAudios/{id}/downloadUrl', [AudioDownloadController::class, 'getPresignedUrlForAudioForGuest']);
 Route::get('myAudios/{id}/downloadSampleUrl', [AudioDownloadController::class, 'getPresignedUrlForSampleAudio']);
 Route::get('validate-coupon', [ProductController::class, 'validateCoupon']);
+Route::post('distance-matrix', [DistanceMatrixController::class, 'calculateDistances']);
 
 Route::middleware('auth:sanctum')->group(function() {
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy']);
