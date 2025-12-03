@@ -114,11 +114,13 @@ class ProductController extends Controller
         $request->validate([
             'isFavorites' => 'string',
             'favoritedAsGuest' => 'string|nullable',
+            'IS_DEV_BUILD' => 'string|nullable',
         ]);
 
         $isFavorites = filter_var($request->query('isFavorites'), FILTER_VALIDATE_BOOLEAN);
         $favoritedAsGuest = json_decode($request->query('favoritedAsGuest'), true);
-        
+        $isDevBuild = filter_var($request->query('IS_DEV_BUILD'), FILTER_VALIDATE_BOOLEAN);
+
         $token = $request->bearerToken();
         $accessToken = PersonalAccessToken::findToken($token);
 
@@ -128,7 +130,11 @@ class ProductController extends Controller
             $query = Product::with(['mapmarkers', 'usersWhoFavorited' => function($query) use ($id) {
                 $query->select('user_id')->where('user_id', $id);
             }])->orderBy('position');
-            
+
+            if (!$isDevBuild) {
+                $query->where('dev_only', false);
+            }
+
             if ($isFavorites) {
                 $query->whereHas('usersWhoFavorited', function($query) use ($id) {
                     $query->where('user_id', $id);
@@ -146,7 +152,11 @@ class ProductController extends Controller
         else {
             $query = Product::with('mapmarkers')->orderBy('position');
 
-            if ($isFavorites) 
+            if (!$isDevBuild) {
+                $query->where('dev_only', false);
+            }
+
+            if ($isFavorites)
                 $query->whereIn('id', $favoritedAsGuest ?? []);
 
             $products = $query->get();

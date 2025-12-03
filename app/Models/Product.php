@@ -25,6 +25,7 @@ class Product extends Model
         'ratingsAvg',
         'zoom',
         'position',
+        'dev_only',
     ];
 
     protected $hidden = ['audioFile', 'sampleAudioFile'];
